@@ -9,19 +9,20 @@ services:
       - "3307:3306"
     volumes:
       - fte-db-vol-PROD:/var/lib/mysql
-
+      # ZMIANA: Dodajemy skrypt inicjalizacyjny bazy danych.
+      - ./database/init.sql:/docker-entrypoint-initdb.d/init.sql
     healthcheck:
       test: [ "CMD", "mysqladmin", "ping", "-h", "localhost", "-u", "root", "-p${MYSQL_ROOT_PASSWORD}" ]
       interval: 10s
       timeout: 5s
       retries: 5
       start_period: 30s
-
     networks:
       - app-network
 
   backend:
-    image: fte-be
+    # ZMIANA: Używamy nowej, pełnej nazwy obrazu.
+    image: ghcr.io/pawelbugiel/waste_no_food/fte-be:latest
     container_name: fte_backend-container
     restart: always
     environment:
@@ -37,7 +38,8 @@ services:
       - app-network
 
   frontend:
-    image: fte25-fe
+    # ZMIANA: Używamy nowej, pełnej nazwy obrazu.
+    image: ghcr.io/pawelbugiel/waste_no_food/fte25-fe:latest
     ports:
       - "8080:80"
     depends_on:
@@ -47,7 +49,7 @@ services:
 
 volumes:
   fte-db-vol-PROD:
-    external: true # Volume exists and has been created outside of docker-compose.
+    external: true
 
 networks:
   app-network:

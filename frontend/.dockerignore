@@ -1,0 +1,20 @@
+# Ignoruj zależności Node.js; będą instalowane wewnątrz kontenera
+node_modules/
+
+# Ignoruj katalog z wynikami budowania; będzie tworzony wewnątrz kontenera
+dist/
+
+# Ignoruj pliki logów i raporty błędów
+*.log
+
+# Ignoruj pliki IDE i kontroli wersji
+.idea/
+.vscode/
+.git
+
+# Ignoruj pliki środowiskowe (dla bezpieczeństwa)
+.env*
+!/.env.example
+
+# Ignoruj plik README
+README.md
