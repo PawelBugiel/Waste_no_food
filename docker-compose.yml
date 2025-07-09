@@ -1,15 +1,14 @@
 services:
   mysql:
     image: mysql:latest
-    container_name: fte-mysql-container
+    container_name: wnf-mysql-container
     environment:
-      MYSQL_ROOT_PASSWORD: polki
+      MYSQL_ROOT_PASSWORD: ${MYSQL_ROOT_PASSWORD}
       MYSQL_DATABASE: fresh_food
     ports:
       - "3307:3306"
     volumes:
-      - fte-db-vol-PROD:/var/lib/mysql
-      # ZMIANA: Dodajemy skrypt inicjalizacyjny bazy danych.
+      - wnf-db-data:/var/lib/mysql
       - ./database/init.sql:/docker-entrypoint-initdb.d/init.sql
     healthcheck:
       test: [ "CMD", "mysqladmin", "ping", "-h", "localhost", "-u", "root", "-p${MYSQL_ROOT_PASSWORD}" ]
@@ -21,14 +20,13 @@ services:
       - app-network
 
   backend:
-    # ZMIANA: Używamy nowej, pełnej nazwy obrazu.
-    image: ghcr.io/pawelbugiel/waste_no_food/fte-be:latest
-    container_name: fte_backend-container
+    image: ghcr.io/pawelbugiel/waste_no_food/wnf-backend:latest
+    container_name: wnf-backend-container
     restart: always
     environment:
       SPRING_DATASOURCE_URL: jdbc:mysql://mysql:3306/fresh_food?useSSL=false&serverTimezone=UTC&allowPublicKeyRetrieval=true
       SPRING_DATASOURCE_USERNAME: root
-      SPRING_DATASOURCE_PASSWORD: polki
+      SPRING_DATASOURCE_PASSWORD: ${MYSQL_ROOT_PASSWORD}
     ports:
       - "8081:8081"
     depends_on:
@@ -38,8 +36,8 @@ services:
       - app-network
 
   frontend:
-    # ZMIANA: Używamy nowej, pełnej nazwy obrazu.
-    image: ghcr.io/pawelbugiel/waste_no_food/fte25-fe:latest
+    image: ghcr.io/pawelbugiel/waste_no_food/wnf-frontend:latest
+    container_name: wnf-frontend-container
     ports:
       - "8080:80"
     depends_on:
@@ -48,7 +46,7 @@ services:
       - app-network
 
 volumes:
-  fte-db-vol-PROD:
+  wnf-db-data:
     external: true
 
 networks:

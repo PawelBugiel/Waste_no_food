@@ -13,3 +13,6 @@ backend/mvnw.cmd
 ### Frontend ###
 frontend/dist/
 frontend/node_modules/
+
+### Environment variables ###
+.env
