@@ -9,7 +9,7 @@
       </div>
     </div>
 
-    <h2 class="mb-4 product-list-heading">Products list</h2>
+    <h2 class="mb-4 product-list-heading">Products Dashboard</h2>
 
     <form @submit.prevent="isEditMode ? updateProduct() : addProduct()" class="mb-4">
       <div class="row align-items-center">

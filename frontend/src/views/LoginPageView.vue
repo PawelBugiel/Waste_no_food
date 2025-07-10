@@ -1,6 +1,6 @@
 <template>
   <div class="auth-container">
-    <h2>Welcome</h2>
+    <h2>Login Page</h2>
 
     <form @submit.prevent="handleLogin">
       <div class="mb-3">
@@ -20,7 +20,6 @@
 </template>
 
 <script>
-// ... (sekcja script pozostaje bez zmian) ...
 import axios from '@/axios.js';
 import { useAuthStore } from '@/stores/authStore';
 

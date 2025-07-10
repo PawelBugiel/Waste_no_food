@@ -1,13 +1,34 @@
 <template>
   <div id="app">
-    <!-- Router-view renderuje widoki na podstawie tras -->
-    <router-view />
+    <TheHeader v-if="shouldShowHeader" />
+
+    <main class="container">
+      <router-view />
+    </main>
   </div>
 </template>
 
 <script>
+import TheHeader from '@/components/TheHeader.vue';
+import { useAuthStore } from '@/stores/authStore';
+import { computed } from 'vue';
+
 export default {
-  name: 'App'
+  name: 'App',
+  components: {
+    TheHeader // Rejestrujemy komponent nagłówka
+  },
+  setup() {
+    const authStore = useAuthStore();
+
+    // Używamy 'computed', aby dynamicznie decydować, czy pokazać nagłówek.
+    // Nagłówek będzie widoczny, tylko gdy token autoryzacyjny istnieje (użytkownik jest zalogowany).
+    const shouldShowHeader = computed(() => authStore.isLoggedIn);
+
+    return {
+      shouldShowHeader
+    };
+  }
 };
 </script>
 
