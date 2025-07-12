@@ -98,28 +98,28 @@ body {
     cursor: pointer;
 }
 
-.btn-custom-delete {
+.btn.btn-custom-delete {
     background-color: #874537;
     border-color: #874537;
     color: #fff;
     transition: background-color 0.3s ease, border-color 0.3s ease, color 0.3s ease;
 }
 
-.btn-custom-delete:hover {
+.btn.btn-custom-delete:hover {
     background-color: #6C372D;
     border-color: #6C372D;
     color: #fff;
     cursor: pointer;
 }
 
-.btn-custom-edit-update {
+.btn.btn-custom-edit-update {
     background-color: #54A498;
     border-color: #54A498;
     color: #fff;
     transition: background-color 0.3s ease, border-color 0.3s ease, color 0.3s ease;
 }
 
-.btn-custom-edit-update:hover {
+.btn.btn-custom-edit-update:hover {
     background-color: #42827A;
     border-color: #42827A;
     color: #fff;
@@ -188,7 +188,6 @@ body {
     color: inherit !important;
 }
 
-/* Style Tabeli */
 .table thead th a {
     color: #2C3E50 !important;
     text-decoration: none;
@@ -197,4 +196,24 @@ body {
 .table thead th a:hover {
     color: #465F79 !important;
     text-decoration: underline;
+}
+
+.table {
+    --bs-table-color: #4A6369;
+    --bs-table-border-color: #F2E1C3;
+    --bs-table-bg: #F9EBDA;
+    --bs-table-striped-bg: #F2E1C3;
+}
+
+.table > thead {
+    color: #2c3e50;
+    background-color: #fdfbf7;
+}
+
+.btn-2x-large {
+    padding: 1rem 2rem;
+    font-size: 1.25rem;
+    line-height: 1.5;
+    border-radius: 0.5rem;
+    border: 2px solid currentColor;
 }
