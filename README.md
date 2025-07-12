@@ -29,14 +29,13 @@ Aplikacja webowa full-stack (Spring Boot + Vue.js) do zarządzania domową spiż
 
 **Waste no food** to aplikacja webowa typu CRUD, której głównym celem biznesowym jest **pomoc w monitorowaniu dat przydatności do spożycia produktów spożywczych** i minimalizowanie ich marnotrawstwa w gospodarstwach domowych.
 
-Projekt ten pełni rolę mojej piaskownicy deweloperskiej, w której rozwijam i demonstruję praktyczne umiejętności w zakresie tworzenia nowoczesnych aplikacji. Kluczowe aspekty, które projekt prezentuje, to:
+Projekt jest moją piaskownicą deweloperską, w której rozwijam i demonstruję praktyczne zastosowanie poniższych koncepcji technicznych:
 
-* **Architektura Full-Stack:** Demonstracja umiejętności integracji backendu (Spring Boot) z frontendem (Vue.js) w spójną, działającą aplikację.
-* **Projektowanie REST API:** Budowa bezpiecznego i elastycznego REST API, zabezpieczonego mechanizmem **JWT (JSON Web Tokens)**.
-* **Czysty i skalowalny kod:** Zastosowanie architektury warstwowej (prezentacja, logika, dane) oraz wzorców projektowych (np. DTO) dla lepszej modułowości i łatwości utrzymania.
-* **Kompleksowe testowanie:** Pokrycie kodu testami jednostkowymi (JUnit, Mockito) i integracyjnymi, z analizą pokrycia kodu za pomocą JaCoCo, co gwarantuje jakość i stabilność rozwiązania.
-* **Konteneryzacja:** Wykorzystanie Docker i Docker Compose do tworzenia przenośnych i łatwych w zarządzaniu środowisk deweloperskich oraz produkcyjnych.
-* **Rozwiązywanie problemów:** Budowanie doświadczenia w debugowaniu, rozwiązywaniu realnych problemów programistycznych i optymalizacji kodu.
+* **Architektura Full-Stack:** Integracja backendu w technologii Spring Boot z frontendem opartym na Vue.js.
+* **Bezpieczeństwo API:** Zabezpieczenie dostępu do zasobów REST API w oparciu o role przy użyciu Spring Security i tokenów JWT.
+* **Wzorce i Architektura:** Zastosowanie architektury warstwowej oraz wzorca DTO w celu zwiększenia modułowości i separacji zagadnień (SoC).
+* **Testowanie Aplikacji:** Weryfikacja logiki biznesowej za pomocą testów jednostkowych i integracyjnych (JUnit, Mockito).
+* **Zautomatyzowane Środowisko (Docker):** Użycie Docker Compose do orkiestracji usług aplikacji (backend, frontend, baza danych), włączając w to konfigurację sieci, wolumenów oraz kontrolę kolejności uruchamiania za pomocą mechanizmu `healthcheck`.
 
 <small>[Spis treści](#spis-treści)</small>
 
@@ -44,17 +43,20 @@ Projekt ten pełni rolę mojej piaskownicy deweloperskiej, w której rozwijam i 
 
 ## Kluczowe Funkcjonalności
 
-### Backend (REST API)
-* **Zarządzanie Produktami (CRUD):** Zestaw endpointów REST API pozwalających na pełne zarządzanie cyklem życia produktów.
-* **Uwierzytelnianie i Autoryzacja (JWT):** Rejestracja i logowanie użytkowników z generowaniem tokenów JWT, zabezpieczenie endpointów w oparciu o role.
-* **Zarządzanie Użytkownikami:** Dostępne dla administratorów operacje pozwalające na zarządzanie kontami użytkowników.
-* **Dokumentacja API**: Automatycznie generowana, interaktywna dokumentacja Swagger UI.
+Aplikacja oferuje bogaty zestaw funkcji do zarządzania produktami, z podziałem na role użytkowników.
 
-### Frontend (Interfejs Użytkownika)
-* **Login Page**: Formularz umożliwiający dostęp do aplikacji.
-* **Products Dashboard**: Główny panel do zarządzania produktami, oferujący listowanie, paginację, sortowanie oraz pełne operacje CRUD. Dostępny dla wszystkich zalogowanych użytkowników.
-* **Admin Dashboard**: Centralny punkt nawigacyjny dla administratora, umożliwiający przejście do zarządzania produktami lub użytkownikami. Dostępny tylko dla Administratora.
-* **User Management**: Panel administracyjny do zarządzania kontami użytkowników (dodawanie, usuwanie, przypisywanie ról). Dostępny tylko dla Administratora.
+#### Dla wszystkich zalogowanych użytkowników:
+
+* **Zarządzanie Produktami (CRUD):** Pełna obsługa cyklu życia produktów, włączając w to ich tworzenie, edycję i usuwanie z użyciem interaktywnego formularza.
+* **Wyszukiwanie po częściowej nazwie:** Dynamiczne filtrowanie listy produktów w czasie rzeczywistym po wpisaniu fragmentu nazwy.
+* **Sortowanie i Paginacja po stronie serwera:** Wydajne przeglądanie dużej liczby produktów dzięki dynamicznemu sortowaniu po kliknięciu w nagłówek kolumny oraz paginacji (następna/poprzednia strona).
+* **Wizualne wskaźniki świeżości:** Automatyczne obliczanie dni do końca daty ważności i oznaczanie produktów kolorami (np. produkty bliskie przeterminowania, produkty przeterminowane) dla szybkiej identyfikacji.
+* **Bezpieczne usuwanie:** Wyświetlanie modala z prośbą o potwierdzenie przed permanentnym usunięciem produktu.
+
+#### Dodatkowo dla Administratora:
+
+* **Zarządzanie użytkownikami:** Dostęp do dedykowanego panelu umożliwiającego przeglądanie, tworzenie i usuwanie kont użytkowników oraz przypisywanie im ról.
+* **Dostęp do dokumentacji API:** Możliwość przeglądania interaktywnej dokumentacji Swagger UI.
 
 <small>[Spis treści](#spis-treści)</small>
 
@@ -102,7 +104,7 @@ Użyj poniższych komend, aby pobrać projekt na swój dysk i wejść do jego g�
 
 ```bash
 # Sklonuj repozytorium
-git clone [https://github.com/pawelbugiel/Waste_no_food.git]
+git clone https://github.com/pawelbugiel/Waste_no_food.git
 
 # Przejdź do nowo utworzonego katalogu
 cd Waste_no_food
@@ -162,7 +164,7 @@ Poniżej znajduje się lista planowanych i zrealizowanych zadań dla projektu:
   * [x] Implementacja uwierzytelniania i autoryzacji z JWT.
   * [ ] Pokrycie kodu backendu kompleksowymi testami jednostkowymi i integracyjnymi.
   * [ ] Integracja z zewnętrznym API (**Open Food Facts API**) w celu automatycznego pobierania danych o produktach.
-  * [ ] Dodanie zaawansowanego logowania i monitorowania (np. Logback/SLF4J).
+  * [ ] Dodanie logowania i monitorowania (np. Logback/SLF4J).
 
 * **Frontend (UI)**
   * [x] Rozwój interfejsu w Vue.js z Vue Router i Pinia.
