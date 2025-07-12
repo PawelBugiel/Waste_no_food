@@ -19,48 +19,47 @@
   </div>
 </template>
 
-<script>
+<script setup>
+import { ref } from 'vue';
+import { useRouter } from 'vue-router';
 import axios from '@/axios.js';
 import { useAuthStore } from '@/stores/authStore';
 
-export default {
-  data() {
-    return {
-      formData: {
-        email: '',
-        password: ''
-      },
-      error: ''
-    };
-  },
-  methods: {
-    async handleLogin() {
-      try {
-        console.log('Sending login request with:', this.formData);
-        const response = await axios.post('/auth/login', {
-          email: this.formData.email,
-          password: this.formData.password
-        });
-        console.log('Login response:', response.data);
-        const { token } = response.data;
+// --- Zmienne reaktywne (zamiast `data`) ---
+const formData = ref({
+  email: '',
+  password: ''
+});
+const error = ref('');
 
-        // Zapisz token w Pinia
-        const authStore = useAuthStore();
-        authStore.setToken(token);
+// --- Instancje store'u i routera ---
+const authStore = useAuthStore();
+const router = useRouter();
 
-        // Przekierowanie w zależności od roli
-        if (authStore.role === 'ADMIN') {
-          this.$router.push('/admin');
-        } else {
-          this.$router.push('/home');
-        }
-      } catch (err) {
-        console.error('Login error:', err);
-        this.error = 'Login failed. Please check your credentials.';
-        if (err.response) {
-          this.error += ` (Status: ${err.response.status}, Message: ${err.response.data.message || err.response.statusText})`;
-        }
-      }
+// --- Metoda (jako funkcja `const`) ---
+const handleLogin = async () => {
+  try {
+    const response = await axios.post('/auth/login', {
+      email: formData.value.email,
+      password: formData.value.password
+    });
+
+    const { token } = response.data;
+
+    // Używamy akcji ze store'a, która powinna od razu zdekodować token i ustawić rolę
+    authStore.setToken(token);
+
+    // Przekierowanie w zależności od roli
+    if (authStore.role === 'ADMIN') {
+      router.push('/admin');
+    } else {
+      router.push('/home');
+    }
+  } catch (err) {
+    console.error('Login error:', err);
+    error.value = 'Login failed. Please check your credentials.';
+    if (err.response) {
+      error.value += ` (Status: ${err.response.status})`;
     }
   }
 };
