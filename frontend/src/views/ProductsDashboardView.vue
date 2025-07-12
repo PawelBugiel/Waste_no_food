@@ -59,12 +59,21 @@
       </tr>
       </thead>
       <tbody>
-      <tr v-for="product in productsWithDaysLeft" :key="product.id" @click="selectProduct(product)" :class="{ 'table-active': selectedProduct && selectedProduct.id === product.id }" style="cursor: pointer;">
+      <tr v-for="product in productsWithDaysLeft"
+          :key="product.id"
+          @click="selectProduct(product)"
+          :class="{
+        'table-active': selectedProduct && selectedProduct.id === product.id,
+        'row-expired': product.daysToExpire < 0,
+        'row-expiring-soon': product.daysToExpire >= 0 && product.daysToExpire <= 3
+      }"
+          style="cursor: pointer;">
+
         <td><input type="radio" :value="product.id" v-model="selectedProductId" @click.stop="selectProduct(product)"></td>
         <td>{{ product.name }}</td>
         <td>{{ product.quantity }}</td>
-        <td :class="{ 'text-danger': isExpired(product.expiryDate) }">{{ product.expiryDate }}</td>
-        <td :class="{ 'text-danger fw-bold': product.daysToExpire < 0, 'text-warning-custom fw-bold': product.daysToExpire >= 0 && product.daysToExpire <= 3 }">
+        <td>{{ product.expiryDate }}</td>
+        <td>
           <span v-if="product.daysToExpire > 1">{{ product.daysToExpire }} days</span>
           <span v-else-if="product.daysToExpire === 1">1 day</span>
           <span v-else-if="product.daysToExpire === 0">Expires today</span>
@@ -106,7 +115,6 @@ import { Modal } from 'bootstrap';
 import { useAuthStore } from '@/stores/authStore';
 import { useRouter } from 'vue-router'; // Importujemy hook do routera
 
-// --- Zmienne reaktywne (zamiast `data()`) ---
 const products = ref([]);
 const currentPage = ref(0);
 const error = ref(null);
@@ -118,7 +126,7 @@ const addProductError = ref(null);
 const isEditMode = ref(false);
 const currentProduct = ref({ id: '', name: '', quantity: null, expiryDate: '' });
 const productToDelete = ref(null);
-const deleteModal = ref(null); // Ref dla instancji modala
+const deleteModal = ref(null);
 const searchQuery = ref('');
 const selectedProduct = ref(null);
 const selectedProductId = ref(null);
@@ -126,7 +134,6 @@ const selectedProductId = ref(null);
 const authStore = useAuthStore();
 const router = useRouter(); // Instancja routera
 
-// --- Właściwości obliczeniowe (zamiast `computed: {}`) ---
 const productsWithDaysLeft = computed(() => {
   return products.value.map(product => {
     const today = new Date();
@@ -139,7 +146,6 @@ const productsWithDaysLeft = computed(() => {
   });
 });
 
-// --- Obserwatory (zamiast `watch: {}`) ---
 watch(currentPage, () => fetchProducts());
 watch(sortBy, () => {
   currentPage.value = 0;
@@ -157,10 +163,9 @@ watch(selectedProductId, (newId) => {
   }
 });
 
-// --- Metody (zamiast `methods: {}`) ---
 const fetchProducts = async () => {
   try {
-    let params = { page: currentPage.value, sortBy: sortBy.value, sortDirection: sortDirection.value.toUpperCase() };
+    let params = { page: currentPage.value, sortBy: sortBy.value, sortDirection: String(sortDirection.value).toUpperCase() };
     if (searchQuery.value) {
       params.partialName = searchQuery.value;
     }
@@ -251,8 +256,6 @@ const sort = (field) => {
   }
 };
 
-const isExpired = (expiryDate) => new Date(expiryDate) < new Date();
-
 const logout = () => {
   authStore.clearAuth();
   router.push('/');
@@ -268,10 +271,8 @@ const selectProduct = (product) => {
   }
 };
 
-// --- Cykl życia komponentu (zamiast `mounted()`) ---
 onMounted(() => {
   fetchProducts();
-  // Inicjalizujemy modal i przypisujemy go do ref
   const modalElement = document.getElementById('deleteModal');
   if (modalElement) {
     deleteModal.value = new Modal(modalElement);
@@ -284,7 +285,12 @@ onMounted(() => {
   background-color: #e0f2f1 !important;
   font-weight: bold;
 }
-.text-warning-custom {
-  color: #874537 !important;
+
+.row-expired td {
+  color: #dc3545;
+}
+
+.row-expiring-soon td {
+  color: #BC5A0E      ;
 }
 </style>
