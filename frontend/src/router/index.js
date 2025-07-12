@@ -9,7 +9,6 @@ const routes = [
     path: '/',
     name: 'Auth',
     component: LoginPageView,
-    // ZMIANA: Dodajemy metadane dla tytułu strony
     meta: { title: 'Login' }
   },
   {
@@ -37,13 +36,10 @@ const router = createRouter({
   routes,
 });
 
-// ZMIANA: Dodajemy logikę, która uruchamia się po każdej zmianie trasy
 router.afterEach((to) => {
-  // Czekamy na następną klatkę animacji, aby upewnić się, że komponent jest gotowy
   if (to.meta.title) {
     document.title = `${to.meta.title} | Waste no food`;
   } else {
-    // Domyślny tytuł, jeśli żaden nie jest zdefiniowany w trasie
     document.title = 'Waste no food';
   }
 });
