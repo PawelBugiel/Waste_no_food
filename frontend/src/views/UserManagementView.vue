@@ -55,81 +55,76 @@
   </div>
 </template>
 
-<script>
-
+<script setup>
+import { ref, onMounted } from 'vue';
+import { useRouter } from 'vue-router';
 import axios from '@/axios.js';
-import {useAuthStore} from '@/stores/authStore';
+import { useAuthStore } from '@/stores/authStore';
 
-export default {
-  setup() {
-    const authStore = useAuthStore();
-    return {authStore};
-  },
-  data() {
-    return {
-      users: [],
-      newUser: {
-        email: '',
-        password: '',
-        role: 'ENDUSER'
-      },
-      error: '',
-      registerError: ''
-    };
-  },
-  mounted() {
-    this.fetchUsers();
-  },
-  methods: {
-    async fetchUsers() {
-      try {
-        const response = await axios.get('/auth/users', {
-          headers: {
-            Authorization: `Bearer ${this.authStore.token}`
-          }
-        });
-        this.users = response.data;
-      } catch (err) {
-        this.error = 'Failed to load users. Please check your authentication.';
-      }
-    },
-    async registerUser() {
-      try {
-        const endpoint = this.newUser.role === 'ADMIN' ? '/auth/register-admin' : '/auth/register-enduser';
-        await axios.post(endpoint, {
-          email: this.newUser.email,
-          password: this.newUser.password,
-          role: this.newUser.role
-        }, {
-          headers: {
-            Authorization: `Bearer ${this.authStore.token}`
-          }
-        });
-        this.registerError = '';
-        this.newUser = {email: '', password: '', role: 'ENDUSER'};
-        this.fetchUsers();
-      } catch (err) {
-        this.registerError = 'Registration failed. Check your permissions or input.';
-      }
-    },
-    async deleteUser(userId) {
-      if (confirm(`Are you sure you want to delete user with ID ${userId}?`)) {
-        try {
-          await axios.delete(`/auth/user/${userId}`, {
-            headers: {
-              Authorization: `Bearer ${this.authStore.token}`
-            }
-          });
-          this.fetchUsers();
-        } catch (err) {
-          this.error = 'Failed to delete user. Check your permissions.';
-        }
-      }
-    },
-    logout() {
-      this.authStore.clearAuth();
-      this.$router.push('/');
+// --- Zmienne reaktywne (zamiast `data`) ---
+const users = ref([]);
+const newUser = ref({
+  email: '',
+  password: '',
+  role: 'ENDUSER'
+});
+const error = ref('');
+const registerError = ref('');
+
+// --- Instancje store i routera ---
+const authStore = useAuthStore();
+
+const router = useRouter();
+
+// --- Metody (jako funkcje `const`) ---
+const fetchUsers = async () => {
+  try {
+    const response = await axios.get('/auth/users', {
+      headers: { Authorization: `Bearer ${authStore.token}` }
+    });
+    users.value = response.data;
+  } catch (err) {
+    error.value = 'Failed to load users. Please check your authentication.';
+  }
+};
+
+const registerUser = async () => {
+  try {
+    const endpoint = newUser.value.role === 'ADMIN' ? '/auth/register-admin' : '/auth/register-enduser';
+    await axios.post(endpoint, {
+      email: newUser.value.email,
+      password: newUser.value.password,
+      role: newUser.value.role
+    }, {
+      headers: { Authorization: `Bearer ${authStore.token}` }
+    });
+    registerError.value = '';
+    newUser.value = { email: '', password: '', role: 'ENDUSER' };
+    await fetchUsers(); // Używamy await, aby poczekać na odświeżenie listy
+  } catch (err) {
+    registerError.value = 'Registration failed. Check your permissions or input.';
+  }
+};
+
+const deleteUser = async (userId) => {
+  if (confirm(`Are you sure you want to delete user with ID ${userId}?`)) {
+    try {
+      await axios.delete(`/auth/user/${userId}`, {
+        headers: { Authorization: `Bearer ${authStore.token}` }
+      });
+      await fetchUsers();
+    } catch (err) {
+      error.value = 'Failed to delete user. Check your permissions.';
     }
   }
 };
+
+const logout = () => {
+  authStore.clearAuth();
+  router.push('/');
+};
+
+onMounted(() => {
+  fetchUsers();
+});
 </script>
