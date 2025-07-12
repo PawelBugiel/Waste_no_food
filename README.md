@@ -62,9 +62,11 @@ Projekt ten pełni rolę mojej piaskownicy deweloperskiej, w której rozwijam i 
 
 ## Zrzuty Ekranu
 
-| Widok Logowania | Główny Dashboard | Formularz Edycji |
-| :---: | :---: | :---: |
-| ![Widok Logowania](https://TUTAJ_WSTAW_LINK_DO_ZRZUTU_EKRANU_1.png) | ![Główny Dashboard](https://TUTAJ_WSTAW_LINK_DO_ZRZUTU_EKRANU_2.png) | ![Edycja Produktu](https://TUTAJ_WSTAW_LINK_DO_ZRZUTU_EKRANU_3.png) |
+| Widok Logowania | Panel Administratora |
+| :---: | :---: |
+| <a href="https://raw.githubusercontent.com/PawelBugiel/Waste_no_food/main/docs/images/LoginPage.png" target="_blank"><img src="https://raw.githubusercontent.com/PawelBugiel/Waste_no_food/main/docs/images/LoginPage.png" alt="Widok Logowania" title="Kliknij, aby powiększyć" width="400"></a> | <a href="https://raw.githubusercontent.com/PawelBugiel/Waste_no_food/main/docs/images/AdminDashboard.png" target="_blank"><img src="https://raw.githubusercontent.com/PawelBugiel/Waste_no_food/main/docs/images/AdminDashboard.png" alt="Panel Administratora" title="Kliknij, aby powiększyć" width="400"></a> |
+| **Panel Produktów** | **Zarządzanie Użytkownikami** |
+| <a href="https://raw.githubusercontent.com/PawelBugiel/Waste_no_food/main/docs/images/ProductsDashboard.png" target="_blank"><img src="https://raw.githubusercontent.com/PawelBugiel/Waste_no_food/main/docs/images/ProductsDashboard.png" alt="Panel Produktów" title="Kliknij, aby powiększyć" width="400"></a> | <a href="https://raw.githubusercontent.com/PawelBugiel/Waste_no_food/main/docs/images/UserManagement.png" target="_blank"><img src="https://raw.githubusercontent.com/PawelBugiel/Waste_no_food/main/docs/images/UserManagement.png" alt="Zarządzanie Użytkownikami" title="Kliknij, aby powiększyć" width="400"></a> |
 
 <small>[Spis treści](#spis-treści)</small>
 
@@ -94,13 +96,13 @@ Projekt ten pełni rolę mojej piaskownicy deweloperskiej, w której rozwijam i 
 ### Instrukcja Uruchomienia
 Aplikacja jest w pełni skonteneryzowana, a jej uruchomienie sprowadza się do kilku kroków.
 
-**1. Sklonuj repozytorium i przejdź do folderu projektu**
+**1. Sklonuj repozytorium i przejdź do folderu projektu**  
 
 Użyj poniższych komend, aby pobrać projekt na swój dysk i wejść do jego głównego katalogu.
 
 ```bash
 # Sklonuj repozytorium
-git clone [https://github.com/pawelbugiel/Waste_no_food.git](https://github.com/pawelbugiel/Waste_no_food.git)
+git clone [https://github.com/pawelbugiel/Waste_no_food.git]
 
 # Przejdź do nowo utworzonego katalogu
 cd Waste_no_food
@@ -119,7 +121,7 @@ copy .env.example .env
 Plik .env zawiera hasło do bazy danych i jest ignorowany przez Git.  
 <br>
 
-**3. Uruchom aplikację**
+**3. Uruchom aplikację**  
 Użyj Docker Compose, aby pobrać obrazy i uruchomić wszystkie usługi w tle (`-d`).
 ```bash  
 
@@ -127,7 +129,7 @@ docker-compose up -d
 ```
 Aplikacja jest teraz uruchomiona. Przejdź do sekcji "Sposób użycia", aby dowiedzieć się, jak zacząć z niej korzystać.
 
-**4. Zatrzymywanie aplikacji**
+**4. Zatrzymywanie aplikacji**  
 Aby zatrzymać i usunąć wszystkie kontenery powiązane z projektem, użyj komendy:
 ```bash
    

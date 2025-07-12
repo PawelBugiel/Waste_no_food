@@ -59,10 +59,11 @@
     <table class="table table-bordered table-striped">
       <thead>
       <tr>
-        <th style="width: 50px;">Select</th> <th>
-        <a href="#" @click.prevent="sort('name')">Name</a>
-        <span v-if="sortBy === 'name'">{{ sortDirection === 'asc' ? '↑' : '↓' }}</span>
-      </th>
+        <th style="width: 50px;">Select</th>
+        <th>
+          <a href="#" @click.prevent="sort('name')">Name</a>
+          <span v-if="sortBy === 'name'">{{ sortDirection === 'asc' ? '↑' : '↓' }}</span>
+        </th>
         <th>
           <a href="#" @click.prevent="sort('quantity')">Quantity</a>
           <span v-if="sortBy === 'quantity'">{{ sortDirection === 'asc' ? '↑' : '↓' }}</span>
@@ -71,10 +72,14 @@
           <a href="#" @click.prevent="sort('expiryDate')">Expiry Date</a>
           <span v-if="sortBy === 'expiryDate'">{{ sortDirection === 'asc' ? '↑' : '↓' }}</span>
         </th>
+        <th>
+          <a href="#" @click.prevent="sort('expiryDate')">Days to Expiry</a>
+          <span v-if="sortBy === 'expiryDate'">{{ sortDirection === 'asc' ? '↑' : '↓' }}</span>
+        </th>
       </tr>
       </thead>
       <tbody>
-      <tr v-for="product in products" :key="product.id"
+      <tr v-for="product in productsWithDaysLeft" :key="product.id"
           @click="selectProduct(product)"
           :class="{ 'table-active': selectedProduct && selectedProduct.id === product.id }"
           style="cursor: pointer;">
@@ -85,6 +90,12 @@
         <td>{{ product.quantity }}</td>
         <td :class="{ 'text-danger': isExpired(product.expiryDate) }">
           {{ product.expiryDate }}
+        </td>
+        <td :class="{ 'text-danger fw-bold': product.daysToExpire < 0, 'text-warning-custom fw-bold': product.daysToExpire >= 0 && product.daysToExpire <= 3 }">
+          <span v-if="product.daysToExpire > 1">{{ product.daysToExpire }} days</span>
+          <span v-else-if="product.daysToExpire === 1">1 day</span>
+          <span v-else-if="product.daysToExpire === 0">Expires today</span>
+          <span v-else>Expired</span>
         </td>
       </tr>
       </tbody>
@@ -149,8 +160,8 @@ export default {
       productToDelete: null,
       deleteModal: null,
       searchQuery: '',
-      selectedProduct: null, // Przechowuje CAŁY OBIEKT PRODUKTU
-      selectedProductId: null // NOWA ZMIENNA: Przechowuje TYLKO ID wybranego produktu, dla v-model radio
+      selectedProduct: null,
+      selectedProductId: null
     };
   },
   mounted() {
@@ -180,6 +191,25 @@ export default {
           this.selectedProduct = foundProduct;
         }
       }
+    }
+  },
+  computed: {
+    productsWithDaysLeft() {
+      return this.products.map(product => {
+        const today = new Date();
+        today.setHours(0, 0, 0, 0); // Normalizujemy do północy dla spójnych obliczeń
+
+        const expirationDate = new Date(product.expiryDate);
+        expirationDate.setHours(0, 0, 0, 0); // Normalizujemy też datę produktu
+
+        const diffTime = expirationDate.getTime() - today.getTime();
+        const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
+
+        return {
+          ...product,
+          daysToExpire: diffDays
+        };
+      });
     }
   },
   methods: {
@@ -254,8 +284,8 @@ export default {
       this.isEditMode = false;
       this.currentProduct = { id: '', name: '', quantity: null, expiryDate: '' };
       this.newProduct = { name: '', quantity: null, expiryDate: '' };
-      this.selectedProduct = null; // Wyczyść zaznaczenie po anulowaniu edycji
-      this.selectedProductId = null; // Wyczyść ID zaznaczonego produktu
+      this.selectedProduct = null;
+      this.selectedProductId = null;
     },
     // Metoda showDeleteModal przyjmuje teraz obiekt produktu
     showDeleteModal(product) {
@@ -314,7 +344,9 @@ export default {
 <style scoped>
 /* Dodaj styl dla zaznaczonego wiersza, aby był bardziej widoczny */
 .table-active {
-  background-color: #e0f2f1 !important; /* Jaśniejszy odcień koloru #54A498 */
+  background-color: #e0f2f1 !important;
   font-weight: bold;
 }
+
+
 </style>
