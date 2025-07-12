@@ -4,33 +4,24 @@
       <div class="header-content">
         <h1 class="app-title">Waste no food</h1>
         <nav>
-          <button v-if="authStore.isLoggedIn" @click="logout" class="btn btn-outline-secondary btn-sm">Logout</button>
+          <button v-if="authStore.token" @click="logout" class="btn btn-outline-secondary btn-sm">Logout</button>
         </nav>
       </div>
     </div>
   </header>
 </template>
 
-<script>
+<script setup>
 import { useAuthStore } from '@/stores/authStore';
 import { useRouter } from 'vue-router';
 
-export default {
-  name: 'TheHeader',
-  setup() {
-    const authStore = useAuthStore();
-    const router = useRouter();
+const authStore = useAuthStore();
+const router = useRouter();
 
-    const logout = () => {
-      authStore.clearToken();
-      router.push('/'); // Przekieruj na stronę logowania po wylogowaniu
-    };
-
-    return {
-      authStore,
-      logout
-    };
-  }
+const logout = () => {
+  // Zakładam, że clearAuth() czyści token i resetuje stan
+  authStore.clearAuth();
+  router.push('/'); // Przekieruj na stronę logowania po wylogowaniu
 };
 </script>
 
