@@ -1,12 +1,13 @@
 package com.pawelbugiel.wastenofood.controllers;
 
-import com.pawelbugiel.wastenofood.dtos.ProductResponse;
 import com.pawelbugiel.wastenofood.dtos.ProductRequest;
+import com.pawelbugiel.wastenofood.dtos.ProductResponse;
 import com.pawelbugiel.wastenofood.services.ProductService;
 import jakarta.validation.Valid;
 import jakarta.validation.constraints.Pattern;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
 import org.springframework.http.ResponseEntity;
 import org.springframework.validation.annotation.Validated;
@@ -57,13 +58,10 @@ public class ProductController {
 
     @GetMapping
     public Page<ProductResponse> findAllProducts(
-            @RequestParam(required = false) int page,
-            @RequestParam(required = false) Integer pageSize,
-            @RequestParam(required = false) String sortBy,
-            @RequestParam(required = false) Sort.Direction sortDirection) {
+            Pageable pageable) {
 
         return productService
-                .findAllProducts(page, pageSize, sortBy, sortDirection);
+                .findAllProducts(pageable);
     }
 
     @GetMapping("/{id}")

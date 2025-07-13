@@ -3,6 +3,7 @@ package com.pawelbugiel.wastenofood.services;
 import com.pawelbugiel.wastenofood.dtos.ProductRequest;
 import com.pawelbugiel.wastenofood.dtos.ProductResponse;
 import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
 
 import java.util.UUID;
@@ -15,7 +16,7 @@ public interface ProductService {
 
 //************** READ *************
 
-    Page<ProductResponse> findAllProducts(int page, Integer pageSize, String sortBy, Sort.Direction sortDirection);
+    Page<ProductResponse> findAllProducts(Pageable pageable);
 
     ProductResponse findProductById(UUID id);
 

@@ -48,7 +48,7 @@
       </button>
     </div>
 
-    <table class="table table-bordered table-striped">
+    <table class="table table-striped">
       <thead>
       <tr>
         <th style="width: 50px;">Select</th>
@@ -83,9 +83,10 @@
       </tbody>
     </table>
 
-    <div class="d-flex justify-content-between mb-4">
-      <button @click="currentPage--" :disabled="currentPage === 0" class="btn btn-info btn-compact btn-previous-page">Previous</button>
-      <button @click="currentPage++" :disabled="!hasMoreProducts" class="btn btn-info btn-compact btn-next-page">Next</button>
+    <div class="d-flex justify-content-between align-items-center mb-4" v-if="totalPages > 0">
+      <button @click="prevPage" :disabled="currentPage === 0" class="btn btn-info btn-compact btn-previous-page">Previous</button>
+      <span>Page {{ currentPage + 1 }} of {{ totalPages }}</span>
+      <button @click="nextPage" :disabled="currentPage >= totalPages - 1" class="btn btn-info btn-compact btn-next-page">Next</button>
     </div>
 
     <div v-if="error" class="alert alert-danger">{{ error }}</div>
@@ -109,18 +110,15 @@
 </template>
 
 <script setup>
-import { ref, computed, watch, onMounted } from 'vue'; // Importujemy wszystko, czego potrzebujemy z Vue
+import { ref, computed, watch, onMounted } from 'vue';
 import axios from '../axios';
 import { Modal } from 'bootstrap';
 import { useAuthStore } from '@/stores/authStore';
-import { useRouter } from 'vue-router'; // Importujemy hook do routera
+import { useRouter } from 'vue-router';
 
+// --- Stan komponentu ---
 const products = ref([]);
-const currentPage = ref(0);
 const error = ref(null);
-const sortBy = ref('expiryDate');
-const sortDirection = ref('asc');
-const hasMoreProducts = ref(true);
 const newProduct = ref({ name: '', quantity: null, expiryDate: '' });
 const addProductError = ref(null);
 const isEditMode = ref(false);
@@ -131,9 +129,16 @@ const searchQuery = ref('');
 const selectedProduct = ref(null);
 const selectedProductId = ref(null);
 
-const authStore = useAuthStore();
-const router = useRouter(); // Instancja routera
+// --- Stan paginacji i sortowania ---
+const currentPage = ref(0);
+const totalPages = ref(0); // NOWOŚĆ: Zastępuje hasMoreProducts
+const sortBy = ref('expiryDate');
+const sortDirection = ref('asc');
 
+const authStore = useAuthStore();
+const router = useRouter();
+
+// --- Właściwości obliczeniowe ---
 const productsWithDaysLeft = computed(() => {
   return products.value.map(product => {
     const today = new Date();
@@ -146,15 +151,9 @@ const productsWithDaysLeft = computed(() => {
   });
 });
 
-watch(currentPage, () => fetchProducts());
-watch(sortBy, () => {
-  currentPage.value = 0;
-  fetchProducts();
-});
-watch(sortDirection, () => {
-  currentPage.value = 0;
-  fetchProducts();
-});
+// --- Obserwatory ---
+watch([currentPage, sortBy, sortDirection], () => fetchProducts());
+
 watch(selectedProductId, (newId) => {
   if (newId === null) {
     selectedProduct.value = null;
@@ -163,9 +162,15 @@ watch(selectedProductId, (newId) => {
   }
 });
 
+// --- Metody ---
 const fetchProducts = async () => {
   try {
-    let params = { page: currentPage.value, sortBy: sortBy.value, sortDirection: String(sortDirection.value).toUpperCase() };
+    // ZMIANA: Dostosowanie parametrów do standardu Pageable
+    const params = {
+      page: currentPage.value,
+      size: 10, // Domyślny rozmiar strony
+      sort: `${sortBy.value},${sortDirection.value}`
+    };
     if (searchQuery.value) {
       params.partialName = searchQuery.value;
     }
@@ -173,14 +178,15 @@ const fetchProducts = async () => {
       params,
       headers: { Authorization: `Bearer ${authStore.token}` }
     });
+    // ZMIANA: Poprawne odczytywanie danych z obiektu Page
     products.value = response.data.content;
-    hasMoreProducts.value = response.data.totalPages > currentPage.value + 1;
+    totalPages.value = response.data.totalPages;
     error.value = null;
     selectedProduct.value = null;
     selectedProductId.value = null;
   } catch (err) {
     error.value = 'Failed to load products. Check if the server is running..';
-    hasMoreProducts.value = false;
+    totalPages.value = 0;
   }
 };
 
@@ -189,7 +195,7 @@ const addProduct = async () => {
     await axios.post('/products', newProduct.value, { headers: { Authorization: `Bearer ${authStore.token}` } });
     newProduct.value = { name: '', quantity: null, expiryDate: '' };
     addProductError.value = null;
-    currentPage.value = 0;
+    currentPage.value = 0; // Resetuj do pierwszej strony
     await fetchProducts();
   } catch (err) {
     addProductError.value = 'Failed to add product.';
@@ -241,7 +247,12 @@ const deleteProduct = async () => {
     productToDelete.value = null;
     selectedProduct.value = null;
     selectedProductId.value = null;
-    await fetchProducts();
+    // Sprawdź, czy po usunięciu strona nie jest pusta
+    if (products.value.length === 1 && currentPage.value > 0) {
+      currentPage.value--;
+    } else {
+      await fetchProducts();
+    }
   } catch (err) {
     error.value = 'Failed to delete product.';
   }
@@ -254,6 +265,7 @@ const sort = (field) => {
     sortBy.value = field;
     sortDirection.value = 'asc';
   }
+  currentPage.value = 0; // Resetuj do pierwszej strony przy sortowaniu
 };
 
 const logout = () => {
@@ -268,6 +280,19 @@ const selectProduct = (product) => {
   } else {
     selectedProduct.value = product;
     selectedProductId.value = product.id;
+  }
+};
+
+// NOWOŚĆ: Metody do nawigacji stronami
+const nextPage = () => {
+  if (currentPage.value < totalPages.value - 1) {
+    currentPage.value++;
+  }
+};
+
+const prevPage = () => {
+  if (currentPage.value > 0) {
+    currentPage.value--;
   }
 };
 

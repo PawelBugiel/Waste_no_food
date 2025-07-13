@@ -63,9 +63,7 @@ public class ProductServiceImpl implements ProductService {
 
     //************** READ *************
     @Override
-    public Page<ProductResponse> findAllProducts(int page, Integer pageSize, String sortBy, Sort.Direction sortDirection) {
-
-        Pageable pageable = createPageable(page, pageSize, sortBy, sortDirection);
+    public Page<ProductResponse> findAllProducts(Pageable pageable) {
 
         return productRepository
                 .findAll(pageable)
