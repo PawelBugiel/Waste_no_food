@@ -10,6 +10,8 @@ import com.pawelbugiel.wastenofood.security.models.User;
 import com.pawelbugiel.wastenofood.security.repositories.RoleRepository;
 import com.pawelbugiel.wastenofood.security.repositories.UserRepository;
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.userdetails.UserDetails;
@@ -18,10 +20,8 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
 import java.util.HashMap;
-import java.util.List;
 import java.util.Map;
 import java.util.Set;
-import java.util.stream.Collectors;
 
 @Service
 @RequiredArgsConstructor
@@ -87,9 +87,9 @@ public class AuthService {
         userRepository.delete(user);
     }
 
-    public List<UserResponse> getAllUsers() {
-        return userRepository.findAll().stream()
-                .map(userMapper::toUserResponse)
-                .collect(Collectors.toList());
+    public Page<UserResponse> getAllUsers(Pageable pageable) {
+
+        return userRepository.findAll(pageable)
+                .map(userMapper::toUserResponse);
     }
 }

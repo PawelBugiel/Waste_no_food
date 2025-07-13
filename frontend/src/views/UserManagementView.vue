@@ -44,8 +44,14 @@
       <thead>
       <tr>
         <th style="width: 50px;">Select</th>
-        <th>Email</th>
-        <th>Role</th>
+        <th>
+          <a href="#" @click.prevent="sort('email')">Email</a>
+          <span v-if="sortBy === 'email'">{{ sortDirection === 'asc' ? '↑' : '↓' }}</span>
+        </th>
+        <th>
+          <a href="#" @click.prevent="sort('roles')">Role</a>
+          <span v-if="sortBy === 'roles'">{{ sortDirection === 'asc' ? '↑' : '↓' }}</span>
+        </th>
       </tr>
       </thead>
       <tbody>
@@ -63,6 +69,12 @@
       </tbody>
     </table>
     <p v-if="!users.length && !error" class="text-center">No users found.</p>
+
+    <div class="d-flex justify-content-between align-items-center mb-4" v-if="totalPages > 0">
+      <button @click="prevPage" :disabled="currentPage === 0" class="btn btn-info btn-compact btn-previous-page">Previous</button>
+      <span>Page {{ currentPage + 1 }} of {{ totalPages }}</span>
+      <button @click="nextPage" :disabled="currentPage >= totalPages - 1" class="btn btn-info btn-compact btn-next-page">Next</button>
+    </div>
   </div>
 </template>
 
@@ -72,20 +84,28 @@ import { useRouter } from 'vue-router';
 import axios from '@/axios.js';
 import { useAuthStore } from '@/stores/authStore';
 
-// --- Zmienne reaktywne ---
+// --- Stan komponentu ---
 const users = ref([]);
 const newUser = ref({ email: '', password: '', role: 'ENDUSER' });
 const error = ref('');
 const registerError = ref('');
 
-// NOWOŚĆ: Zmienne do obsługi zaznaczania użytkownika
+// --- Stan paginacji i sortowania ---
+const currentPage = ref(0);
+const totalPages = ref(0);
+const sortBy = ref('email');
+const sortDirection = ref('asc');
+
+// --- Stan zaznaczania ---
 const selectedUser = ref(null);
 const selectedUserId = ref(null);
 
 const authStore = useAuthStore();
 const router = useRouter();
 
-// NOWOŚĆ: Obserwator do synchronizacji zaznaczenia
+// --- Obserwatory ---
+watch([currentPage, sortBy, sortDirection], () => fetchUsers());
+
 watch(selectedUserId, (newId) => {
   if (newId) {
     selectedUser.value = users.value.find(user => user.id === newId);
@@ -97,13 +117,24 @@ watch(selectedUserId, (newId) => {
 // --- Metody ---
 const fetchUsers = async () => {
   try {
-    const response = await axios.get('/auth/users', { headers: { Authorization: `Bearer ${authStore.token}` } });
-    users.value = response.data;
-    // Resetuj zaznaczenie po każdym odświeżeniu listy
+    const params = {
+      page: currentPage.value,
+      size: 10,
+      sort: `${sortBy.value},${sortDirection.value}`
+    };
+    const response = await axios.get('/auth/users', {
+      params,
+      headers: { Authorization: `Bearer ${authStore.token}` }
+    });
+    users.value = response.data.content;
+    totalPages.value = response.data.totalPages;
+    error.value = '';
     selectedUser.value = null;
     selectedUserId.value = null;
   } catch (err) {
     error.value = 'Failed to load users. Please check your authentication.';
+    users.value = [];
+    totalPages.value = 0;
   }
 };
 
@@ -117,23 +148,49 @@ const registerUser = async () => {
     }, { headers: { Authorization: `Bearer ${authStore.token}` } });
     registerError.value = '';
     newUser.value = { email: '', password: '', role: 'ENDUSER' };
+    currentPage.value = 0;
     await fetchUsers();
   } catch (err) {
     registerError.value = 'Registration failed. Check your permissions or input.';
   }
 };
 
-// ZMIANA: Metoda do usuwania bazuje teraz na zaznaczonym użytkowniku
 const deleteSelectedUser = async () => {
-  if (!selectedUser.value) return; // Zabezpieczenie
+  if (!selectedUser.value) return;
 
   if (confirm(`Are you sure you want to delete user ${selectedUser.value.email}?`)) {
     try {
       await axios.delete(`/auth/user/${selectedUser.value.id}`, { headers: { Authorization: `Bearer ${authStore.token}` } });
-      await fetchUsers(); // Odśwież listę, co automatycznie wyczyści zaznaczenie
+      if (users.value.length === 1 && currentPage.value > 0) {
+        currentPage.value--;
+      } else {
+        await fetchUsers();
+      }
     } catch (err) {
       error.value = 'Failed to delete user. Check your permissions.';
     }
+  }
+};
+
+const sort = (field) => {
+  if (sortBy.value === field) {
+    sortDirection.value = sortDirection.value === 'asc' ? 'desc' : 'asc';
+  } else {
+    sortBy.value = field;
+    sortDirection.value = 'asc';
+  }
+  currentPage.value = 0;
+};
+
+const nextPage = () => {
+  if (currentPage.value < totalPages.value - 1) {
+    currentPage.value++;
+  }
+};
+
+const prevPage = () => {
+  if (currentPage.value > 0) {
+    currentPage.value--;
   }
 };
 
@@ -142,7 +199,6 @@ const logout = () => {
   router.push('/');
 };
 
-// NOWOŚĆ: Metoda do zaznaczania/odznaczania użytkownika
 const selectUser = (user) => {
   if (selectedUser.value && selectedUser.value.id === user.id) {
     selectedUserId.value = null;
@@ -157,7 +213,6 @@ onMounted(() => {
 </script>
 
 <style scoped>
-/* Te style pochodzą z widoku produktów i zapewniają spójność */
 .table-active {
   background-color: #e0f2f1 !important;
   font-weight: bold;
