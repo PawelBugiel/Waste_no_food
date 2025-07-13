@@ -2,7 +2,7 @@
   <div class="container mt-4">
     <div class="d-flex justify-content-between align-items-center mb-4">
       <div>
-        <router-link v-if="authStore.role === 'ADMIN'" to="/users" class="btn btn-info btn-compact btn-manage-users">Manage Users</router-link>
+        <router-link v-if="authStore.role === 'ADMIN'" to="/users" class="btn btn-info btn-compact btn-sm btn-manage-users">Manage Users</router-link>
       </div>
       <div>
         <button @click="logout" class="btn btn-info btn-sm btn-compact btn-logout">Logout</button>
@@ -291,6 +291,7 @@ onMounted(() => {
 }
 
 .row-expiring-soon td {
-  color: #BC5A0E      ;
+  color: #BC5A0E;
+  font-weight: bold;
 }
 </style>

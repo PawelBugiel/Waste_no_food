@@ -24,7 +24,14 @@
             <option value="ADMIN">Administrator</option>
           </select>
         </div>
-        <button type="submit" class="btn btn-custom-register btn-sm">Register new user</button>
+
+        <div>
+          <button type="submit" class="btn btn-custom-register btn-sm">Register new user</button>
+          <button @click="deleteSelectedUser" :disabled="!selectedUser" type="button" class="btn btn-sm btn-custom-delete ms-2">
+            Delete Selected User
+          </button>
+        </div>
+
       </form>
       <p v-if="registerError" class="text-danger mt-2">{{ registerError }}</p>
     </div>
@@ -33,21 +40,25 @@
       {{ error }}
     </div>
 
-    <table class="table table-bordered table-striped" v-if="users.length">
+    <table class="table table-striped" v-if="users.length">
       <thead>
       <tr>
+        <th style="width: 50px;">Select</th>
         <th>Email</th>
         <th>Role</th>
-        <th>Actions</th>
       </tr>
       </thead>
       <tbody>
-      <tr v-for="user in users" :key="user.id">
+      <tr v-for="user in users"
+          :key="user.id"
+          @click="selectUser(user)"
+          :class="{ 'table-active': selectedUser && selectedUser.id === user.id }"
+          style="cursor: pointer;">
+        <td>
+          <input type="radio" :value="user.id" v-model="selectedUserId" @click.stop>
+        </td>
         <td>{{ user.email }}</td>
         <td>{{ user.roles && user.roles.length > 0 ? user.roles[0].name.replace("ROLE_", "") : "NO_ROLE" }}</td>
-        <td>
-          <button @click="deleteUser(user.id)" class="btn btn-custom-delete btn-sm">Delete</button>
-        </td>
       </tr>
       </tbody>
     </table>
@@ -56,33 +67,41 @@
 </template>
 
 <script setup>
-import { ref, onMounted } from 'vue';
+import { ref, onMounted, watch } from 'vue';
 import { useRouter } from 'vue-router';
 import axios from '@/axios.js';
 import { useAuthStore } from '@/stores/authStore';
 
-// --- Zmienne reaktywne (zamiast `data`) ---
+// --- Zmienne reaktywne ---
 const users = ref([]);
-const newUser = ref({
-  email: '',
-  password: '',
-  role: 'ENDUSER'
-});
+const newUser = ref({ email: '', password: '', role: 'ENDUSER' });
 const error = ref('');
 const registerError = ref('');
 
-// --- Instancje store i routera ---
-const authStore = useAuthStore();
+// NOWOŚĆ: Zmienne do obsługi zaznaczania użytkownika
+const selectedUser = ref(null);
+const selectedUserId = ref(null);
 
+const authStore = useAuthStore();
 const router = useRouter();
 
-// --- Metody (jako funkcje `const`) ---
+// NOWOŚĆ: Obserwator do synchronizacji zaznaczenia
+watch(selectedUserId, (newId) => {
+  if (newId) {
+    selectedUser.value = users.value.find(user => user.id === newId);
+  } else {
+    selectedUser.value = null;
+  }
+});
+
+// --- Metody ---
 const fetchUsers = async () => {
   try {
-    const response = await axios.get('/auth/users', {
-      headers: { Authorization: `Bearer ${authStore.token}` }
-    });
+    const response = await axios.get('/auth/users', { headers: { Authorization: `Bearer ${authStore.token}` } });
     users.value = response.data;
+    // Resetuj zaznaczenie po każdym odświeżeniu listy
+    selectedUser.value = null;
+    selectedUserId.value = null;
   } catch (err) {
     error.value = 'Failed to load users. Please check your authentication.';
   }
@@ -95,24 +114,23 @@ const registerUser = async () => {
       email: newUser.value.email,
       password: newUser.value.password,
       role: newUser.value.role
-    }, {
-      headers: { Authorization: `Bearer ${authStore.token}` }
-    });
+    }, { headers: { Authorization: `Bearer ${authStore.token}` } });
     registerError.value = '';
     newUser.value = { email: '', password: '', role: 'ENDUSER' };
-    await fetchUsers(); // Używamy await, aby poczekać na odświeżenie listy
+    await fetchUsers();
   } catch (err) {
     registerError.value = 'Registration failed. Check your permissions or input.';
   }
 };
 
-const deleteUser = async (userId) => {
-  if (confirm(`Are you sure you want to delete user with ID ${userId}?`)) {
+// ZMIANA: Metoda do usuwania bazuje teraz na zaznaczonym użytkowniku
+const deleteSelectedUser = async () => {
+  if (!selectedUser.value) return; // Zabezpieczenie
+
+  if (confirm(`Are you sure you want to delete user ${selectedUser.value.email}?`)) {
     try {
-      await axios.delete(`/auth/user/${userId}`, {
-        headers: { Authorization: `Bearer ${authStore.token}` }
-      });
-      await fetchUsers();
+      await axios.delete(`/auth/user/${selectedUser.value.id}`, { headers: { Authorization: `Bearer ${authStore.token}` } });
+      await fetchUsers(); // Odśwież listę, co automatycznie wyczyści zaznaczenie
     } catch (err) {
       error.value = 'Failed to delete user. Check your permissions.';
     }
@@ -124,7 +142,24 @@ const logout = () => {
   router.push('/');
 };
 
+// NOWOŚĆ: Metoda do zaznaczania/odznaczania użytkownika
+const selectUser = (user) => {
+  if (selectedUser.value && selectedUser.value.id === user.id) {
+    selectedUserId.value = null;
+  } else {
+    selectedUserId.value = user.id;
+  }
+};
+
 onMounted(() => {
   fetchUsers();
 });
 </script>
+
+<style scoped>
+/* Te style pochodzą z widoku produktów i zapewniają spójność */
+.table-active {
+  background-color: #e0f2f1 !important;
+  font-weight: bold;
+}
+</style>

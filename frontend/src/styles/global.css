@@ -19,9 +19,9 @@ body {
 }
 
 .user-management-heading::before {
-    content: '\2699';
+    content: '\263A';
     margin-right: 11px;
-    font-size: 0.9em;
+    font-size: 1.3em;
     vertical-align: text-bottom;
 }
 
@@ -158,20 +158,18 @@ body {
 }
 
 .btn-manage-users::before {
-    content: '\2699';
-    margin-right: 5px;
+    content: '\263A';
+    margin-right: 8px;
     display: inline-block;
     color: inherit !important;
-    vertical-align: middle;
 }
 
 .btn-go-to-products::before {
     content: '\1F6CD';
-    margin-right: 5px;
+    margin-right: 8px;
     display: inline-block;
     color: inherit !important;
     font-size: 1.2em;
-    vertical-align: middle;
 }
 
 .btn-previous-page::before {
