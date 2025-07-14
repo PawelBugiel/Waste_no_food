@@ -11,7 +11,7 @@
 
     <h2 class="mb-4 product-list-heading">Products Dashboard</h2>
 
-    <form @submit.prevent="isEditMode ? updateProduct() : addProduct()" class="mb-4">
+    <form @submit.prevent="updateProduct()" class="mb-4">
       <div class="row align-items-center">
         <div class="col">
           <input v-model="newProduct.name" type="text" class="form-control" placeholder="Product name" required/>
@@ -23,7 +23,6 @@
           <input v-model="newProduct.expiryDate" type="date" class="form-control" required/>
         </div>
         <div class="col">
-          <button v-if="!isEditMode" type="submit" class="btn btn-custom-add btn-sm">Add new product</button>
           <button v-if="isEditMode" type="submit" class="btn btn-custom-edit-update btn-sm">Update</button>
           <button v-if="isEditMode" @click="cancelEdit" type="button" class="btn btn-secondary btn-sm">Cancel</button>
         </div>
@@ -40,7 +39,10 @@
     </div>
 
     <div class="d-flex justify-content-start mb-3">
-      <button @click="editSelectedProduct()" :disabled="!selectedProduct" class="btn btn-sm btn-custom-edit-update mx-1">
+      <button v-if="!isEditMode" @click="addProduct" class="btn btn-sm btn-custom-add">
+        Add new product
+      </button>
+      <button @click="editSelectedProduct()" :disabled="!selectedProduct" class="btn btn-sm btn-custom-edit-update mx-3">
         Edit Selected Product
       </button>
       <button @click="showDeleteModal(selectedProduct)" :disabled="!selectedProduct" class="btn btn-sm btn-custom-delete">

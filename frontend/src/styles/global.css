@@ -1,4 +1,7 @@
-/* Style Główne (Body, App) */
+/* ==========================================================================
+   1. Style Główne (Body, App)
+   ========================================================================== */
+
 body {
     background-color: #F2E1C3;
     margin: 0;
@@ -10,7 +13,10 @@ body {
     min-height: 100vh;
 }
 
-/* Style Nagłówków */
+/* ==========================================================================
+   2. Style Nagłówków i Typografii
+   ========================================================================== */
+
 .product-list-heading::before {
     content: '\1F6CD';
     margin-right: 11px;
@@ -25,7 +31,10 @@ body {
     vertical-align: text-bottom;
 }
 
-/* Style Formularzy i Kart */
+/* ==========================================================================
+   3. Style Formularzy
+   ========================================================================== */
+
 .card {
     background-color: #F2E1C3 !important;
     border-color: #54A498 !important;
@@ -51,12 +60,59 @@ body {
     color: #4A6369 !important;
 }
 
-/* Style Przycisków (Bootstrap i ogólne) */
+/* ==========================================================================
+   4. Style Tabel
+   ========================================================================== */
+
+.table {
+    --bs-table-color: #4A6369;
+    --bs-table-border-color: #F2E1C3;
+    --bs-table-bg: #F9EBDA;
+    --bs-table-striped-bg: #F2E1C3;
+}
+
+.table > thead {
+    color: #2c3e50;
+    background-color: #fdfbf7;
+}
+
+.table thead th a {
+    color: #2C3E50 !important;
+    text-decoration: none;
+}
+
+.table thead th a:hover {
+    color: #465F79 !important;
+    text-decoration: underline;
+}
+
+/* ==========================================================================
+   5. Style Przycisków
+   ========================================================================== */
+
+/* --- Ogólne modyfikatory --- */
 .btn-compact {
     font-size: 0.75rem;
     padding: 0.2rem 0.5rem;
 }
 
+.btn-2x-large {
+    padding: 1rem 2rem;
+    font-size: 1.25rem;
+    line-height: 1.5;
+    border-radius: 0.5rem;
+    border: 2px solid currentColor;
+}
+
+/* --- Stan nieaktywny (globalny) --- */
+.btn:disabled,
+.btn[disabled] {
+    cursor: not-allowed;
+    opacity: 0.65;
+    pointer-events: auto;
+}
+
+/* --- Wariant .btn-info --- */
 .btn-info {
     background-color: #F2E1C3 !important;
     border-color: #54A498 !important;
@@ -65,67 +121,15 @@ body {
     transition: background-color 0.3s ease, border-color 0.3s ease, color 0.3s ease;
 }
 
-.btn-info:hover {
+.btn-info:not(:disabled):hover {
     background-color: #54A498 !important;
     border-color: #54A498 !important;
     color: #F2E1C3 !important;
     cursor: pointer;
 }
 
-.btn-info[disabled] {
-    opacity: 0.65;
-}
-
-.btn-info[disabled]:hover {
-    background-color: #F2E1C3 !important;
-    border-color: #54A498 !important;
-    color: #54A498 !important;
-    cursor: not-allowed;
-}
-
-/* Style Przycisków (Niestandardowe) */
-.btn-custom-add {
-    background-color: #105446;
-    border-color: #105446;
-    color: #fff;
-    transition: background-color 0.3s ease, border-color 0.3s ease, color 0.3s ease;
-}
-
-.btn-custom-add:hover {
-    background-color: #1A705E;
-    border-color: #1A705E;
-    color: #fff;
-    cursor: pointer;
-}
-
-.btn.btn-custom-delete {
-    background-color: #874537;
-    border-color: #874537;
-    color: #fff;
-    transition: background-color 0.3s ease, border-color 0.3s ease, color 0.3s ease;
-}
-
-.btn.btn-custom-delete:hover {
-    background-color: #6C372D;
-    border-color: #6C372D;
-    color: #fff;
-    cursor: pointer;
-}
-
-.btn.btn-custom-edit-update {
-    background-color: #54A498;
-    border-color: #54A498;
-    color: #fff;
-    transition: background-color 0.3s ease, border-color 0.3s ease, color 0.3s ease;
-}
-
-.btn.btn-custom-edit-update:hover {
-    background-color: #42827A;
-    border-color: #42827A;
-    color: #fff;
-    cursor: pointer;
-}
-
+/* --- Wariant .btn-custom-add & .btn-custom-register --- */
+.btn-custom-add,
 .btn-custom-register {
     background-color: #105446;
     border-color: #105446;
@@ -133,14 +137,48 @@ body {
     transition: background-color 0.3s ease, border-color 0.3s ease, color 0.3s ease;
 }
 
-.btn-custom-register:hover {
+.btn-custom-add:not(:disabled):hover,
+.btn-custom-register:not(:disabled):hover {
     background-color: #1A705E;
     border-color: #1A705E;
     color: #fff;
     cursor: pointer;
 }
 
-/* Style Ikon w Przyciskach */
+/* --- Wariant .btn-custom-delete --- */
+.btn.btn-custom-delete {
+    background-color: #874537;
+    border-color: #874537;
+    color: #fff;
+    transition: background-color 0.3s ease, border-color 0.3s ease, color 0.3s ease;
+}
+
+.btn.btn-custom-delete:not(:disabled):hover {
+    background-color: #6C372D;
+    border-color: #6C372D;
+    color: #fff;
+    cursor: pointer;
+}
+
+/* --- Wariant .btn-custom-edit-update --- */
+.btn.btn-custom-edit-update {
+    background-color: #54A498;
+    border-color: #54A498;
+    color: #fff;
+    transition: background-color 0.3s ease, border-color 0.3s ease, color 0.3s ease;
+}
+
+.btn.btn-custom-edit-update:not(:disabled):hover {
+    background-color: #42827A;
+    border-color: #42827A;
+    color: #fff;
+    cursor: pointer;
+}
+
+/* ==========================================================================
+   6. Style Ikon w Przyciskach
+   ========================================================================== */
+
 .btn-login::before {
     content: '\26BF';
     margin-right: 5px;
@@ -184,34 +222,4 @@ body {
     margin-left: 5px;
     display: inline-block;
     color: inherit !important;
-}
-
-.table thead th a {
-    color: #2C3E50 !important;
-    text-decoration: none;
-}
-
-.table thead th a:hover {
-    color: #465F79 !important;
-    text-decoration: underline;
-}
-
-.table {
-    --bs-table-color: #4A6369;
-    --bs-table-border-color: #F2E1C3;
-    --bs-table-bg: #F9EBDA;
-    --bs-table-striped-bg: #F2E1C3;
-}
-
-.table > thead {
-    color: #2c3e50;
-    background-color: #fdfbf7;
-}
-
-.btn-2x-large {
-    padding: 1rem 2rem;
-    font-size: 1.25rem;
-    line-height: 1.5;
-    border-radius: 0.5rem;
-    border: 2px solid currentColor;
 }
