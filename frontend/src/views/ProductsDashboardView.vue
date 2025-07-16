@@ -2,8 +2,9 @@
   <div class="container mt-4">
     <div class="d-flex justify-content-between align-items-center mb-4">
       <div>
-        <router-link v-if="authStore.role === 'ADMIN'" to="/users"
-                     class="btn btn-info btn-compact btn-sm btn-manage-users">Manage Users
+        <router-link v-if="authStore.role === 'ADMIN'" to="/users" class="btn btn-info btn-compact btn-sm d-inline-flex align-items-center">
+          <img src="@/assets/images/users_logo.webp" alt="" class="btn-icon-sm">
+          <span>Manage Users</span>
         </router-link>
       </div>
       <div>
@@ -11,42 +12,46 @@
       </div>
     </div>
 
-    <h2 class="mb-4 product-list-heading">Products Dashboard</h2>
+    <h2 class="mb-4 d-flex align-items-center justify-content-center">
+      <img src="@/assets/images/products_logo.webp" alt="Products icon" class="heading-icon">
+      <span>Products Dashboard</span>
+    </h2>
 
     <form @submit.prevent="updateProduct()" class="mb-4">
-      <div class="row align-items-center">
-        <div class="col">
-          <input v-model="newProduct.name" type="text" class="form-control" placeholder="Product name" required/>
+      <div class="row g-3">
+        <div class="col-md-4 text-start">
+          <label for="product-name" class="form-label">Product name:</label>
+          <input v-model="newProduct.name" type="text" class="form-control form-control-sm" id="product-name" required/>
         </div>
-        <div class="col">
-          <input v-model.number="newProduct.quantity" type="number" class="form-control" placeholder="Quantity"
-                 required/>
+        <div class="col-md-4 text-start">
+          <label for="product-quantity" class="form-label">Quantity:</label>
+          <input v-model.number="newProduct.quantity" type="number" class="form-control form-control-sm" id="product-quantity" required/>
         </div>
-        <div class="col">
-          <input v-model="newProduct.expiryDate" type="date" class="form-control" required/>
+        <div class="col-md-4 text-start">
+          <label for="product-expiry" class="form-label">Expiry Date:</label>
+          <input v-model="newProduct.expiryDate" type="date" class="form-control form-control-sm" id="product-expiry" required/>
         </div>
-        <div class="col">
-          <button v-if="isEditMode" type="submit" class="btn btn-custom-edit-update btn-sm">Update</button>
-          <button v-if="isEditMode" @click="cancelEdit" type="button" class="btn btn-secondary btn-sm">Cancel</button>
+
+        <div class="col-md-4 text-start">
+          <label for="search-by-name" class="form-label">Search by name:</label>
+          <input v-model="searchQuery" type="text" id="search-by-name" class="form-control form-control-sm" @input="fetchProducts"/>
+        </div>
+
+        <div class="col-md-8"></div>
+
+        <div class="col-12 text-start mt-2" v-if="isEditMode">
+          <button type="submit" class="btn btn-custom-edit-update btn-sm">Update</button>
+          <button @click="cancelEdit" type="button" class="btn btn-secondary btn-sm ms-2">Cancel</button>
         </div>
       </div>
-      <p v-if="addProductError" class="text-danger">{{ addProductError }}</p>
+      <p v-if="addProductError" class="text-danger mt-2">{{ addProductError }}</p>
     </form>
 
-    <div class="mb-4">
-      <div class="row">
-        <div class="col col-md-6 col-sm-12">
-          <input v-model="searchQuery" type="text" class="form-control" placeholder="Search by name"
-                 @input="fetchProducts"/>
-        </div>
-      </div>
-    </div>
 
-    <div class=" mb-3" style="max-width: 550px;">
-
+    <div class="mb-3" style="max-width: 750px;">
       <div class="row g-3">
         <div class="col">
-          <button v-if="!isEditMode" @click="addProduct" class="btn btn-sm btn-custom-add w-100 h-100">
+          <button :disabled="isEditMode || selectedProduct" @click="addProduct" class="btn btn-sm btn-custom-add w-100 h-100">
             Add new product
           </button>
         </div>
@@ -58,12 +63,11 @@
         </div>
         <div class="col">
           <button @click="showDeleteModal(selectedProduct)" :disabled="!selectedProduct"
-                  class="btn btn-sm btn-custom-delete w-100 h-100q">
+                  class="btn btn-sm btn-custom-delete w-100 h-100">
             Delete selected product
           </button>
         </div>
       </div>
-
     </div>
 
     <table class="table table-striped">
@@ -105,7 +109,6 @@
       </tr>
       </tbody>
     </table>
-
     <div class="d-flex justify-content-between align-items-center mb-4" v-if="totalPages > 0">
       <button @click="prevPage" :disabled="currentPage === 0" class="btn btn-info btn-compact btn-previous-page">
         Previous
@@ -115,9 +118,7 @@
               class="btn btn-info btn-compact btn-next-page">Next
       </button>
     </div>
-
     <div v-if="error" class="alert alert-danger">{{ error }}</div>
-
     <div class="modal fade" id="deleteModal" tabindex="-1" aria-labelledby="deleteModalLabel" aria-hidden="true">
       <div class="modal-dialog">
         <div class="modal-content">

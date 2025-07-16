@@ -12,7 +12,10 @@
         <input v-model="formData.password" type="password" id="password" class="form-control form-control-sm" required />
       </div>
 
-      <button type="submit" class="btn btn-info btn-compact btn-login">Login</button>
+      <button type="submit" class="btn btn-info btn-compact d-inline-flex align-items-center btn-login">
+        <img src="@/assets/images/key_logo.webp" alt="" class="btn-icon-sm">
+        <span>Login</span>
+      </button>
     </form>
 
     <p v-if="error" class="text-danger mt-2">{{ error }}</p>

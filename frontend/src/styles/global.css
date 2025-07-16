@@ -44,12 +44,18 @@ body {
     color: #4A6369;
 }
 
-.form-control,
+.form-control {
+    background-color: #F9EBDA !important;
+    border-color: #54A498 !important;
+    color: #4A6369 !important;
+    background-image: none !important; /* To zostaje tylko dla zwykłych inputów */
+}
+
 .form-select {
     background-color: #F9EBDA !important;
     border-color: #54A498 !important;
     color: #4A6369 !important;
-    background-image: none !important;
+    /* Usunęliśmy stąd `background-image: none`, aby strzałka była widoczna */
 }
 
 .form-control:focus,
@@ -129,20 +135,29 @@ body {
 }
 
 /* --- Wariant .btn-custom-add & .btn-custom-register --- */
-.btn-custom-add,
-.btn-custom-register {
+.btn.btn-custom-add,
+.btn.btn-custom-register {
     background-color: #105446;
     border-color: #105446;
     color: #fff;
     transition: background-color 0.3s ease, border-color 0.3s ease, color 0.3s ease;
 }
 
-.btn-custom-add:not(:disabled):hover,
-.btn-custom-register:not(:disabled):hover {
+.btn.btn-custom-add:not(:disabled):hover,
+.btn.btn-custom-register:not(:disabled):hover {
     background-color: #1A705E;
     border-color: #1A705E;
     color: #fff;
     cursor: pointer;
+}
+
+.btn.btn-custom-add:disabled,
+.btn.btn-custom-add[disabled],
+.btn.btn-custom-register:disabled,
+.btn.btn-custom-register[disabled] {
+    background-color: #1A705E;
+    border-color: #1A705E;
+    color: #fff; /* Gwarantujemy biały kolor czcionki */
 }
 
 /* --- Wariant .btn-custom-delete --- */
@@ -179,15 +194,6 @@ body {
    6. Style Ikon w Przyciskach
    ========================================================================== */
 
-.btn-login::before {
-    content: '\26BF';
-    margin-right: 5px;
-    display: inline-block;
-    color: inherit !important;
-    font-size: 1.2em;
-    vertical-align: middle;
-}
-
 .btn-logout::before {
     content: '\23FB';
     margin-right: 5px;
@@ -222,4 +228,25 @@ body {
     margin-left: 5px;
     display: inline-block;
     color: inherit !important;
+}
+
+.heading-icon {
+    width: auto;
+    height: 0.9em;
+    margin-right: 12px;
+}
+.btn-icon {
+    width: 28px;
+    height: 28px;
+    margin-right: 0.75rem;
+}
+
+.btn-icon-sm {
+    width: 1.5em;
+    height: auto;
+    margin-right: 0.3rem;
+}
+
+.btn-login:not(:disabled):hover .btn-icon-sm {
+    filter: brightness(5);
 }

@@ -1,45 +1,68 @@
 <template>
   <div class="container mt-4">
     <div class="d-flex justify-content-between align-items-center mb-4">
-      <router-link to="/home" class="btn btn-info btn-sm btn-compact btn-go-to-products">Go to Products</router-link>
+      <router-link to="/home" class="btn btn-info btn-sm btn-compact d-inline-flex align-items-center">
+        <img src="@/assets/images/products_logo.webp" alt="" class="btn-icon-sm">
+        <span>Manage Products</span>
+      </router-link>
       <button @click="logout" class="btn btn-info btn-sm btn-compact btn-logout">Logout</button>
     </div>
 
-    <h2 class="mb-4 user-management-heading">User Management</h2>
+    <h2 class="mb-4 d-flex align-items-center justify-content-center">
+      <img src="@/assets/images/users_logo.webp" alt="Users icon" class="heading-icon">
+      <span>User Management</span>
+    </h2>
 
-    <div class="p-2 mb-3 col-md-6 col-sm-12 mx-auto">
-      <form @submit.prevent="registerUser">
-        <div class="mb-2">
-          <label for="register-email" class="form-label">Email:</label>
-          <input v-model="newUser.email" type="email" id="register-email" class="form-control form-control-sm" required/>
-        </div>
-        <div class="mb-2">
-          <label for="register-password" class="form-label">Password:</label>
-          <input v-model="newUser.password" type="password" id="register-password" class="form-control form-control-sm" required/>
-        </div>
-        <div class="mb-2">
-          <label for="register-role" class="form-label">Role:</label>
-          <select v-model="newUser.role" id="register-role" class="form-select form-select-sm">
-            <option value="ENDUSER">End user</option>
-            <option value="ADMIN">Administrator</option>
-          </select>
-        </div>
+    <form @submit.prevent="registerUser" class="mb-4">
 
-        <div>
-          <button type="submit" class="btn btn-custom-register btn-sm">Register new user</button>
-          <button @click="deleteSelectedUser" :disabled="!selectedUser" type="button" class="btn btn-sm btn-custom-delete ms-2">
-            Delete Selected User
-          </button>
+      <div class="mb-3 text-start" style="max-width: 800px;">
+        <div class="row g-3">
+          <div class="col-sm">
+            <label for="register-email" class="form-label">Email:</label>
+            <input v-model="newUser.email" type="email" id="register-email" class="form-control form-control-sm" required/>
+          </div>
+          <div class="col-sm">
+            <label for="register-password" class="form-label">Password:</label>
+            <input v-model="newUser.password" type="password" id="register-password" class="form-control form-control-sm" required/>
+          </div>
         </div>
+      </div>
 
-      </form>
+      <div class="mb-3 text-start" style="max-width: 500px;">
+        <div class="row g-2">
+          <div class="col">
+            <label for="register-role" class="form-label">Role:</label>
+            <select v-model="newUser.role" id="register-role" class="form-select form-select-sm">
+              <option value="ENDUSER">End user</option>
+              <option value="ADMIN">Administrator</option>
+            </select>
+          </div>
+          <div class="col">
+          </div>
+        </div>
+      </div>
+
+      <div class="mb-3" style="max-width: 500px;">
+        <div class="row g-2">
+          <div class="col">
+            <button type="submit" class="btn btn-custom-register btn-sm w-100 h-100">
+              Register new user
+            </button>
+          </div>
+          <div class="col">
+            <button @click="deleteSelectedUser" :disabled="!selectedUser" type="button" class="btn btn-sm btn-custom-delete w-100 h-100">
+              Delete Selected User
+            </button>
+          </div>
+        </div>
+      </div>
+
       <p v-if="registerError" class="text-danger mt-2">{{ registerError }}</p>
-    </div>
+    </form>
 
     <div v-if="error" class="alert alert-danger">
       {{ error }}
     </div>
-
     <table class="table table-striped" v-if="users.length">
       <thead>
       <tr>
@@ -69,7 +92,6 @@
       </tbody>
     </table>
     <p v-if="!users.length && !error" class="text-center">No users found.</p>
-
     <div class="d-flex justify-content-between align-items-center mb-4" v-if="totalPages > 0">
       <button @click="prevPage" :disabled="currentPage === 0" class="btn btn-info btn-compact btn-previous-page">Previous</button>
       <span>Page {{ currentPage + 1 }} of {{ totalPages }}</span>
