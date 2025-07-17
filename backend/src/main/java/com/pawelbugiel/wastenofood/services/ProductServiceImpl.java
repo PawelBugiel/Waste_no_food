@@ -7,12 +7,10 @@ import com.pawelbugiel.wastenofood.mappers.ProductMapper;
 import com.pawelbugiel.wastenofood.models.Product;
 import com.pawelbugiel.wastenofood.repositories.ProductRepository;
 import com.pawelbugiel.wastenofood.validators.ObjectValidator;
-import com.pawelbugiel.wastenofood.validators.PageableValidator;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
-import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -24,15 +22,13 @@ public class ProductServiceImpl implements ProductService {
 
     private final ProductRepository productRepository;
     private final ProductMapper productMapper;
-    private final PageableValidator pageableValidator;
     private final ObjectValidator<ProductRequest> objectValidator;
 
     private final static Logger log = LoggerFactory.getLogger(ProductServiceImpl.class);
 
-    public ProductServiceImpl(ProductRepository productRepository, ProductMapper productMapper, PageableValidator pageValidator, ObjectValidator<ProductRequest> objectValidator) {
+    public ProductServiceImpl(ProductRepository productRepository, ProductMapper productMapper, ObjectValidator<ProductRequest> objectValidator) {
         this.productRepository = productRepository;
         this.productMapper = productMapper;
-        this.pageableValidator = pageValidator;
         this.objectValidator = objectValidator;
     }
 
@@ -93,16 +89,8 @@ public class ProductServiceImpl implements ProductService {
                 .map(productMapper::toProductResponse);
     }
 
-    private Pageable createPageable(int page, Integer pageSize, String sortBy, Sort.Direction sortDirection) {
-        return pageableValidator
-                .validatePageable(page, pageSize, sortBy, sortDirection);
-    }
-
     @Override
-    public Page<ProductResponse> findProductsWithExpiredDate(
-            int page, Integer pageSize, String sortBy, Sort.Direction sortDirection) {
-
-        Pageable pageable = createPageable(page, pageSize, sortBy, sortDirection);
+    public Page<ProductResponse> findProductsWithExpiredDate(Pageable pageable) {
 
         Page<Product> expiredProductsPage = productRepository
                 .findWithExpiredDate(pageable);

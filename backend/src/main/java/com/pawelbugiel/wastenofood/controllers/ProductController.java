@@ -8,7 +8,6 @@ import jakarta.validation.constraints.Pattern;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
-import org.springframework.data.domain.Sort;
 import org.springframework.http.ResponseEntity;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
@@ -47,14 +46,15 @@ public class ProductController {
                 .body(resultProductResponse);
     }
 
-    private static String getResourceUri(UriComponentsBuilder uriBuilder, ProductResponse resultProductResponse) {
+    private static String getResourceUri(UriComponentsBuilder uriBuilder,
+                                         ProductResponse resultProductResponse) {
         return uriBuilder
                 .path("/api/product/products/{id}")
                 .buildAndExpand(resultProductResponse.id())
                 .toUriString();
     }
 
-//************** READ *************
+//************** GET *************
 
     @GetMapping
     public Page<ProductResponse> findAllProducts(Pageable pageable) {
@@ -65,6 +65,7 @@ public class ProductController {
 
     @GetMapping("/{id}")
     public ResponseEntity<ProductResponse> findProductById(@PathVariable UUID id) {
+
         ProductResponse productResponse = productService
                 .findProductById(id);
 
@@ -85,14 +86,10 @@ public class ProductController {
     }
 
     @GetMapping("/expired")
-    public ResponseEntity<Page<ProductResponse>> findProductsWithExpiredDate(
-            @RequestParam(required = false) Integer page,
-            @RequestParam(required = false) Integer pageSize,
-            @RequestParam(required = false) String sortBy,
-            @RequestParam(required = false) Sort.Direction sortDirection) {
+    public ResponseEntity<Page<ProductResponse>> findProductsWithExpiredDate(Pageable pageable) {
 
         Page<ProductResponse> foundProducts = productService
-                .findProductsWithExpiredDate(page, pageSize, sortBy, sortDirection);
+                .findProductsWithExpiredDate(pageable);
 
         return ResponseEntity
                 .ok(foundProducts);
