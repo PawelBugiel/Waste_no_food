@@ -57,16 +57,14 @@ public class ProductController {
 //************** READ *************
 
     @GetMapping
-    public Page<ProductResponse> findAllProducts(
-            Pageable pageable) {
+    public Page<ProductResponse> findAllProducts(Pageable pageable) {
 
         return productService
                 .findAllProducts(pageable);
     }
 
     @GetMapping("/{id}")
-    public ResponseEntity<ProductResponse> findProductById(
-            @PathVariable UUID id) {
+    public ResponseEntity<ProductResponse> findProductById(@PathVariable UUID id) {
         ProductResponse productResponse = productService
                 .findProductById(id);
 
@@ -77,13 +75,10 @@ public class ProductController {
     @GetMapping("/search")
     public ResponseEntity<?> findProductsByPartialName(
             @RequestParam @Pattern(regexp = PARTIAL_NAME_REGEX) String partialName,
-            @RequestParam(required = false) int page,
-            @RequestParam(required = false) Integer pageSize,
-            @RequestParam(required = false) String sortBy,
-            @RequestParam(required = false) Sort.Direction sortDirection) {
+            Pageable pageable) {
 
         Page<ProductResponse> productResponses = productService
-                .findProductsByPartialName(partialName, page, pageSize, sortBy, sortDirection);
+                .findProductsByPartialName(partialName, pageable);
 
         return ResponseEntity
                 .ok(productResponses);

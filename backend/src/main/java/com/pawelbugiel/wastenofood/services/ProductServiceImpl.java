@@ -84,9 +84,7 @@ public class ProductServiceImpl implements ProductService {
 
     @Override
     public Page<ProductResponse> findProductsByPartialName(
-            String partialName, int page, Integer pageSize, String sortBy, Sort.Direction sortDirection) {
-
-        Pageable pageable = createPageable(page, pageSize, sortBy, sortDirection);
+            String partialName, Pageable pageable) {
 
         Page<Product> products = productRepository
                 .findByPartialName(partialName, pageable);

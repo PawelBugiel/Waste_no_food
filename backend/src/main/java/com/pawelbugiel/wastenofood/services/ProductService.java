@@ -20,7 +20,8 @@ public interface ProductService {
 
     ProductResponse findProductById(UUID id);
 
-    Page<ProductResponse> findProductsByPartialName(String partialName, int page, Integer pageSize, String sortBy, Sort.Direction sortDirection);
+    Page<ProductResponse> findProductsByPartialName(String partialName,
+                                                    Pageable pageable);
 
     Page<ProductResponse> findProductsWithExpiredDate(int page, Integer pageSize, String sortBy, Sort.Direction sortDirection);
 
