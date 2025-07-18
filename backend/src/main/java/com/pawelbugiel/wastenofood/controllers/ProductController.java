@@ -15,7 +15,7 @@ import org.springframework.web.util.UriComponentsBuilder;
 
 import java.util.UUID;
 
-@SuppressWarnings("unused")
+//@SuppressWarnings("unused")
 @RestController
 @RequestMapping("api/products")
 @Validated
@@ -32,11 +32,12 @@ public class ProductController {
 //************** CREATE *************
 
     @PostMapping
-    public ResponseEntity<ProductResponse> createProduct(
+    public ResponseEntity<ProductResponse> createNewProductOrUpdateExisting(
             @RequestBody @Valid ProductRequest productRequest,
             UriComponentsBuilder uriBuilder) {
+
         ProductResponse resultProductResponse = productService
-                .createProduct(productRequest);
+                .createNewProductOrUpdateExisting(productRequest);
 
         String resourceUri = getResourceUri(uriBuilder, resultProductResponse);
 
@@ -57,10 +58,13 @@ public class ProductController {
 //************** GET *************
 
     @GetMapping
-    public Page<ProductResponse> findAllProducts(Pageable pageable) {
+    public ResponseEntity<Page<ProductResponse>> findAllProducts(Pageable pageable) {
 
-        return productService
+        Page<ProductResponse> productResponses = productService
                 .findAllProducts(pageable);
+
+        return ResponseEntity
+                .ok(productResponses);
     }
 
     @GetMapping("/{id}")
@@ -74,7 +78,7 @@ public class ProductController {
     }
 
     @GetMapping("/search")
-    public ResponseEntity<?> findProductsByPartialName(
+    public ResponseEntity<Page<ProductResponse>> findProductsByPartialName(
             @RequestParam @Pattern(regexp = PARTIAL_NAME_REGEX) String partialName,
             Pageable pageable) {
 
@@ -119,8 +123,7 @@ public class ProductController {
                 .deleteProductById(id);
 
         return ResponseEntity
-                .status(200)
-                .body(deletedProductResponse);
+                .ok(deletedProductResponse);
     }
 }
 

@@ -23,6 +23,7 @@ public class ProductServiceImpl implements ProductService {
     private final ProductRepository productRepository;
     private final ProductMapper productMapper;
     private final ObjectValidator<ProductRequest> objectValidator;
+    private static final int MAX_QUANTITY = 20_000;
 
     private final static Logger log = LoggerFactory.getLogger(ProductServiceImpl.class);
 
@@ -36,26 +37,38 @@ public class ProductServiceImpl implements ProductService {
 
     @Override
     @Transactional
-    public ProductResponse createProduct(ProductRequest productRequest) {
+    public ProductResponse createNewProductOrUpdateExisting(ProductRequest productRequest) {
 
         objectValidator.validate(productRequest);
 
         Optional<Product> existingProduct = productRepository
                 .findByNameAndExpiryDate(productRequest.getName(), productRequest.getExpiryDate());
 
-        Product savedProduct;
+        return existingProduct.map(
+                product -> handleExistingProduct(product, productRequest.getQuantity()))
+                .orElseGet(() -> createNewProduct(productRequest));
+    }
 
-        if (existingProduct.isEmpty()) {
-            Product passedProduct = productMapper.toProduct(productRequest);
-            savedProduct = productRepository.save(passedProduct);
-        } else {
-            Product actualProduct = existingProduct.get();
 
-            actualProduct.setQuantity(actualProduct.getQuantity() + productRequest.getQuantity());
-            savedProduct = productRepository.save(actualProduct);
-        }
+    private ProductResponse createNewProduct(ProductRequest productRequest) {
+
+        Product passedProduct = productMapper.toProduct(productRequest);
+        Product savedProduct = productRepository.save(passedProduct);
         return productMapper.toProductResponse(savedProduct);
     }
+
+    private ProductResponse handleExistingProduct(Product existingProduct, Integer quantityToAdd) {
+
+        if (existingProduct.getQuantity() + quantityToAdd > MAX_QUANTITY) {
+            throw new IllegalArgumentException("Product quantity cannot exceed " + MAX_QUANTITY);
+        }
+
+        existingProduct.setQuantity(existingProduct.getQuantity() + quantityToAdd);
+        Product savedProduct = productRepository.save(existingProduct);
+
+        return productMapper.toProductResponse(savedProduct);
+    }
+
 
     //************** READ *************
     @Override
@@ -109,7 +122,6 @@ public class ProductServiceImpl implements ProductService {
         Product productToUpdate = findProductByIdOrThrow(id);
 
         productMapper.updateProductFromRequest(productRequest, productToUpdate);
-
         Product savedProduct = productRepository.save(productToUpdate);
 
         return productMapper.toProductResponse(savedProduct);
@@ -119,8 +131,8 @@ public class ProductServiceImpl implements ProductService {
 
     @Override
     public ProductResponse deleteProductById(UUID id) {
-        Product foundProduct = findProductByIdOrThrow(id);
 
+        Product foundProduct = findProductByIdOrThrow(id);
         ProductResponse productResponse = productMapper.toProductResponse(foundProduct);
 
         productRepository.deleteById(id);
