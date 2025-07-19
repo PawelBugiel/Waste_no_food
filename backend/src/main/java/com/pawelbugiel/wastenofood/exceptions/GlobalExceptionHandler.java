@@ -1,6 +1,7 @@
 package com.pawelbugiel.wastenofood.exceptions;
 
 import jakarta.validation.ConstraintViolationException;
+import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.validation.FieldError;
@@ -54,7 +55,16 @@ public class GlobalExceptionHandler {
 
     @ExceptionHandler(PageException.class)
     @ResponseStatus(HttpStatus.BAD_REQUEST)
-    public String pageValidationExceptionHandler(PageException ex){
-        return(ex.getMessage());
+    public String pageValidationExceptionHandler(PageException ex) {
+        return (ex.getMessage());
+    }
+
+    @ExceptionHandler(DataIntegrityViolationException.class)
+    @ResponseStatus(HttpStatus.CONFLICT)
+    public ResponseEntity<String> dataViolationExceptionHandler(DataIntegrityViolationException ex) {
+
+        return ResponseEntity
+                .status(HttpStatus.CONFLICT)
+                .body("A product with this name and expiry date was created simultaneously. Please try again.");
     }
 }

@@ -16,6 +16,7 @@ import java.time.LocalDate;
 public class ProductRequest {
 
     private static final String PRODUCT_NAME_REGEX = "^[a-zA-Z0-9]{3}.*$";
+    private static final int PRODUCT_MAX_QUANTITY = 20_000;
 
     @NotBlank(message = "Product name cannot be empty or contain only whitespaces")
     @Pattern(regexp = "^[a-zA-Z0-9]{3}.*$", message = "Product name must start with at least 3 alphanumeric characters")
@@ -23,7 +24,7 @@ public class ProductRequest {
     private final String name;
 
     @Min(value = 1, message = "Quantity must be at least 1")
-    @Max(value = 10_000, message = "Quantity must not exceed 10,000")
+    @Max(value = PRODUCT_MAX_QUANTITY, message = "Quantity must not exceed " + PRODUCT_MAX_QUANTITY)
     private final Integer quantity;
 
     @NotNull(message = "Expiry date cannot be null")

@@ -20,12 +20,12 @@ import java.util.UUID;
 @Service
 public class ProductServiceImpl implements ProductService {
 
+    private static final int PRODUCT_MAX_QUANTITY = 20_000;
+    private final static Logger log = LoggerFactory.getLogger(ProductServiceImpl.class);
+
     private final ProductRepository productRepository;
     private final ProductMapper productMapper;
     private final ObjectValidator<ProductRequest> objectValidator;
-    private static final int MAX_QUANTITY = 20_000;
-
-    private final static Logger log = LoggerFactory.getLogger(ProductServiceImpl.class);
 
     public ProductServiceImpl(ProductRepository productRepository, ProductMapper productMapper, ObjectValidator<ProductRequest> objectValidator) {
         this.productRepository = productRepository;
@@ -49,28 +49,8 @@ public class ProductServiceImpl implements ProductService {
                 .orElseGet(() -> createNewProduct(productRequest));
     }
 
-
-    private ProductResponse createNewProduct(ProductRequest productRequest) {
-
-        Product passedProduct = productMapper.toProduct(productRequest);
-        Product savedProduct = productRepository.save(passedProduct);
-        return productMapper.toProductResponse(savedProduct);
-    }
-
-    private ProductResponse handleExistingProduct(Product existingProduct, Integer quantityToAdd) {
-
-        if (existingProduct.getQuantity() + quantityToAdd > MAX_QUANTITY) {
-            throw new IllegalArgumentException("Product quantity cannot exceed " + MAX_QUANTITY);
-        }
-
-        existingProduct.setQuantity(existingProduct.getQuantity() + quantityToAdd);
-        Product savedProduct = productRepository.save(existingProduct);
-
-        return productMapper.toProductResponse(savedProduct);
-    }
-
-
     //************** READ *************
+
     @Override
     public Page<ProductResponse> findAllProducts(Pageable pageable) {
 
@@ -78,17 +58,10 @@ public class ProductServiceImpl implements ProductService {
                 .findAll(pageable)
                 .map(productMapper::toProductResponse);
     }
-
     @Override
     public ProductResponse findProductById(UUID id) {
         Product product = findProductByIdOrThrow(id);
         return productMapper.toProductResponse(product);
-    }
-
-    private Product findProductByIdOrThrow(UUID id) {
-        return productRepository
-                .findById(id)
-                .orElseThrow(() -> new ProductNotFoundException(id));
     }
 
     @Override
@@ -112,22 +85,26 @@ public class ProductServiceImpl implements ProductService {
                 .map(productMapper::toProductResponse);
     }
 
-//************** UPDATE *************
 
+    //************** UPDATE *************
     @Override
+    @Transactional
     public ProductResponse updateProduct(UUID id, ProductRequest productRequest) {
 
         objectValidator.validate(productRequest);
 
-        Product productToUpdate = findProductByIdOrThrow(id);
+        if(productRequest.getQuantity() > PRODUCT_MAX_QUANTITY) {
+            throw new IllegalArgumentException("Product quantity cannot exceed " + PRODUCT_MAX_QUANTITY);
+        }
 
+        Product productToUpdate = findProductByIdOrThrow(id);
         productMapper.updateProductFromRequest(productRequest, productToUpdate);
         Product savedProduct = productRepository.save(productToUpdate);
 
         return productMapper.toProductResponse(savedProduct);
     }
 
-//************** DELETE *************
+    //************** DELETE *************
 
     @Override
     public ProductResponse deleteProductById(UUID id) {
@@ -138,5 +115,36 @@ public class ProductServiceImpl implements ProductService {
         productRepository.deleteById(id);
 
         return productResponse;
+    }
+
+//************** private methods *************
+
+    private ProductResponse createNewProduct(ProductRequest productRequest) {
+
+        Product passedProduct = productMapper.toProduct(productRequest);
+        Product savedProduct = productRepository.save(passedProduct);
+        return productMapper.toProductResponse(savedProduct);
+    }
+
+    private ProductResponse handleExistingProduct(Product existingProduct, Integer quantityToAdd) {
+
+        checkIfUpdatedProductQuantityExceedsMaxQuantity(
+                existingProduct.getQuantity() + quantityToAdd);
+
+        existingProduct.setQuantity(existingProduct.getQuantity() + quantityToAdd);
+        Product savedProduct = productRepository.save(existingProduct);
+
+        return productMapper.toProductResponse(savedProduct);
+    }
+
+    private Product findProductByIdOrThrow(UUID id) {
+        return productRepository
+                .findById(id)
+                .orElseThrow(() -> new ProductNotFoundException(id));
+    }
+    private static void checkIfUpdatedProductQuantityExceedsMaxQuantity(int productQuantityAfterUpdate) {
+        if (productQuantityAfterUpdate > PRODUCT_MAX_QUANTITY) {
+            throw new IllegalArgumentException("Product quantity cannot exceed " + PRODUCT_MAX_QUANTITY);
+        }
     }
 }

@@ -6,12 +6,14 @@ import lombok.*;
 import java.time.LocalDate;
 import java.util.UUID;
 
-@Getter
-@ToString
-@Table(name = "products")
 @Entity
-@Builder
+@Table(name = "products", uniqueConstraints = {
+        @UniqueConstraint(columnNames = {"name", "expiry_date"})
+})
+@Getter
 @Setter
+@ToString
+@Builder
 @NoArgsConstructor
 @AllArgsConstructor
 public class Product {
