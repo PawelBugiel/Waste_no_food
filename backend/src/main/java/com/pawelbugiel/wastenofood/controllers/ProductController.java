@@ -21,8 +21,9 @@ import java.util.UUID;
 @Validated
 public class ProductController {
 
-    private final ProductService productService;
     private static final String PARTIAL_NAME_REGEX = "^[a-zA-Z0-9].*";
+
+    private final ProductService productService;
 
     @Autowired
     public ProductController(ProductService productService) {
@@ -47,16 +48,8 @@ public class ProductController {
                 .body(resultProductResponse);
     }
 
-    private static String getResourceUri(UriComponentsBuilder uriBuilder,
-                                         ProductResponse resultProductResponse) {
-        return uriBuilder
-                .path("/api/product/products/{id}")
-                .buildAndExpand(resultProductResponse.id())
-                .toUriString();
-    }
 
 //************** GET *************
-
     @GetMapping
     public ResponseEntity<Page<ProductResponse>> findAllProducts(Pageable pageable) {
 
@@ -99,6 +92,7 @@ public class ProductController {
                 .ok(foundProducts);
     }
 
+
     //************** UPDATE *************
 
     @PutMapping("/{id}")
@@ -113,7 +107,9 @@ public class ProductController {
                 .ok(updatedProductResponse);
     }
 
-//************** DELETE *************
+
+
+    //************** DELETE *************
 
     @DeleteMapping("/{id}")
     public ResponseEntity<ProductResponse> deleteProduct(
@@ -124,6 +120,16 @@ public class ProductController {
 
         return ResponseEntity
                 .ok(deletedProductResponse);
+    }
+
+//************** private methods ************
+
+    private static String getResourceUri(UriComponentsBuilder uriBuilder,
+                                         ProductResponse resultProductResponse) {
+        return uriBuilder
+                .path("/api/product/products/{id}")
+                .buildAndExpand(resultProductResponse.id())
+                .toUriString();
     }
 }
 

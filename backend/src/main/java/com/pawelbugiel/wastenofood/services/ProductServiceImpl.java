@@ -45,7 +45,7 @@ public class ProductServiceImpl implements ProductService {
                 .findByNameAndExpiryDate(productRequest.getName(), productRequest.getExpiryDate());
 
         return existingProduct.map(
-                product -> handleExistingProduct(product, productRequest.getQuantity()))
+                product -> updateQuantityForExistingProduct(product, productRequest.getQuantity()))
                 .orElseGet(() -> createNewProduct(productRequest));
     }
 
@@ -126,7 +126,7 @@ public class ProductServiceImpl implements ProductService {
         return productMapper.toProductResponse(savedProduct);
     }
 
-    private ProductResponse handleExistingProduct(Product existingProduct, Integer quantityToAdd) {
+    private ProductResponse updateQuantityForExistingProduct(Product existingProduct, Integer quantityToAdd) {
 
         checkIfUpdatedProductQuantityExceedsMaxQuantity(
                 existingProduct.getQuantity() + quantityToAdd);
