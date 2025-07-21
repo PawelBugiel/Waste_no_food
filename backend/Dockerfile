@@ -25,7 +25,7 @@ WORKDIR /app
 
 # Kopiujemy TYLKO plik .jar z etapu "builder" i nadajemy mu prostą nazwę.
 # Nazwa JAR-a jest pobierana z Twojego pliku, ale zmieniana na prostszą.
-COPY --from=builder /app/target/waste-no-food-0.0.1-SNAPSHOT.jar waste-no-food.jar
+COPY --from=builder /app/target/waste-no-food-*.jar waste-no-food.jar
 
 # Informujemy Dockera, że aplikacja nasłuchuje na porcie 8081.
 EXPOSE 8081
