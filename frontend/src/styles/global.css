@@ -48,14 +48,13 @@ body {
     background-color: #F9EBDA !important;
     border-color: #54A498 !important;
     color: #4A6369 !important;
-    background-image: none !important; /* To zostaje tylko dla zwykłych inputów */
+    background-image: none !important;
 }
 
 .form-select {
     background-color: #F9EBDA !important;
     border-color: #54A498 !important;
     color: #4A6369 !important;
-    /* Usunęliśmy stąd `background-image: none`, aby strzałka była widoczna */
 }
 
 .form-control:focus,
@@ -64,6 +63,13 @@ body {
     border-color: #42827A !important;
     box-shadow: 0 0 0 0.2rem rgba(84, 164, 152, 0.25) !important;
     color: #4A6369 !important;
+}
+
+.form-control:disabled,
+.form-control[disabled],
+.form-select:disabled,
+.form-select[disabled] {
+    cursor: not-allowed;
 }
 
 /* ==========================================================================
@@ -96,7 +102,6 @@ body {
    5. Style Przycisków
    ========================================================================== */
 
-/* --- Ogólne modyfikatory --- */
 .btn-compact {
     font-size: 0.75rem;
     padding: 0.2rem 0.5rem;
@@ -110,7 +115,6 @@ body {
     border: 2px solid currentColor;
 }
 
-/* --- Stan nieaktywny (globalny) --- */
 .btn:disabled,
 .btn[disabled] {
     cursor: not-allowed;
@@ -118,7 +122,6 @@ body {
     pointer-events: auto;
 }
 
-/* --- Wariant .btn-info --- */
 .btn-info {
     background-color: #F2E1C3 !important;
     border-color: #54A498 !important;
@@ -134,7 +137,6 @@ body {
     cursor: pointer;
 }
 
-/* --- Wariant .btn-custom-add & .btn-custom-register --- */
 .btn.btn-custom-add,
 .btn.btn-custom-register {
     background-color: #105446;
@@ -157,10 +159,9 @@ body {
 .btn.btn-custom-register[disabled] {
     background-color: #1A705E;
     border-color: #1A705E;
-    color: #fff; /* Gwarantujemy biały kolor czcionki */
+    color: #fff;
 }
 
-/* --- Wariant .btn-custom-delete --- */
 .btn.btn-custom-delete {
     background-color: #874537;
     border-color: #874537;
@@ -175,7 +176,6 @@ body {
     cursor: pointer;
 }
 
-/* --- Wariant .btn-custom-edit-update --- */
 .btn.btn-custom-edit-update {
     background-color: #54A498;
     border-color: #54A498;

@@ -39,7 +39,8 @@ public class SecurityConfig {
                                 "/api/auth/register-enduser",
                                 "/api/auth/user/**",
                                 "/api/auth/users",
-                                "/api/auth"
+                                "/api/auth",
+                                "/api/auth/search/**"
                         ).hasRole("ADMIN")
                         .requestMatchers("/api/products/**").authenticated()
                         .anyRequest().denyAll()
@@ -47,18 +48,6 @@ public class SecurityConfig {
                 .addFilterBefore(jwtAuthFilter, UsernamePasswordAuthenticationFilter.class)
                 .build();
     }
-
-//    @Bean
-//    public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
-//        System.out.println("Ładowanie konfiguracji bezpieczeństwa dla środowiska TESTOWEGO (test) - BRAK ZABEZPIECZEŃ.");
-//        return http
-//                .csrf(csrf -> csrf.disable())
-//                .authorizeHttpRequests(auth -> auth
-//                        .anyRequest().permitAll() // Zezwól na wszystko
-//                )
-//                .build();
-//    }
-
 
     @Bean
     public AuthenticationManager authenticationManager(AuthenticationConfiguration config) throws Exception {
@@ -73,14 +62,13 @@ public class SecurityConfig {
     @Bean
     public CorsConfigurationSource corsConfigurationSource() {
         CorsConfiguration configuration = new CorsConfiguration();
-        configuration.setAllowedOrigins(Arrays.asList("http://localhost:8080", "http://192.168.0.172:8080")); // Zezwalamy na frontend
-        configuration.setAllowedMethods(Arrays.asList("GET", "POST", "PUT", "DELETE", "OPTIONS")); // Dozwolone metody
-        configuration.setAllowedHeaders(Arrays.asList("*")); // Dozwolone nagłówki
+        configuration.setAllowedOrigins(Arrays.asList("http://localhost:8080", "http://192.168.0.172:8080"));
+        configuration.setAllowedMethods(Arrays.asList("GET", "POST", "PUT", "DELETE", "OPTIONS"));
+        configuration.setAllowedHeaders(Arrays.asList("*"));
         configuration.setAllowCredentials(true); // Zezwolenie na wysyłanie cookies/credentials
 
         UrlBasedCorsConfigurationSource source = new UrlBasedCorsConfigurationSource();
-        source.registerCorsConfiguration("/**", configuration); // Stosujemy do wszystkich endpointów
+        source.registerCorsConfiguration("/**", configuration);
         return source;
     }
-
 }

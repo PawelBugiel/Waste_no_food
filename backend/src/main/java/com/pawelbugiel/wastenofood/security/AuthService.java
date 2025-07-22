@@ -92,4 +92,11 @@ public class AuthService {
         return userRepository.findAllWithRoles(pageable)
                 .map(userMapper::toUserResponse);
     }
+
+    public Page<UserResponse> findUserByPartialEmailWithRoles(Pageable pageable, String email) {
+
+        Page<User> users = userRepository.findUserByPartialEmailWithRoles(pageable, email);
+
+         return users.map(userMapper::toUserResponse);
+    }
 }

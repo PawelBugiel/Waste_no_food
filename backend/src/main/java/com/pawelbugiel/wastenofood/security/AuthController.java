@@ -23,25 +23,29 @@ public class AuthController {
     @PostMapping("/register-enduser")
     @PreAuthorize("hasRole('ADMIN')")
     public ResponseEntity<AuthResponse> registerEnduser(@Valid @RequestBody RegisterRequest request) {
-        return ResponseEntity.ok(authService.registerEnduser(request));
+        return ResponseEntity
+                .ok(authService.registerEnduser(request));
     }
 
     @PostMapping("/register-admin")
     @PreAuthorize("hasRole('ADMIN')")
     public ResponseEntity<AuthResponse> registerAdmin(@Valid @RequestBody RegisterRequest request) {
-        return ResponseEntity.ok(authService.registerAdmin(request));
+        return ResponseEntity
+                .ok(authService.registerAdmin(request));
     }
 
     @PostMapping("/login")
     public ResponseEntity<AuthResponse> login(@RequestBody AuthRequest request) {
-        return ResponseEntity.ok(authService.authenticate(request));
+        return ResponseEntity
+                .ok(authService.authenticate(request));
     }
 
     @DeleteMapping("/user/{userId}")
     @PreAuthorize("hasRole('ADMIN')")
     public ResponseEntity<Void> deleteUser(@PathVariable Long userId) {
         authService.deleteUser(userId);
-        return ResponseEntity.noContent().build();
+        return ResponseEntity
+                .noContent().build();
     }
 
     @GetMapping("/users")
@@ -49,6 +53,16 @@ public class AuthController {
     public ResponseEntity<Page<UserResponse>> getAllUsers(
             @PageableDefault(sort = "name")
             Pageable pageable) {
-        return ResponseEntity.ok(authService.findAllWithRoles(pageable));
+        return ResponseEntity
+                .ok(authService.findAllWithRoles(pageable));
+    }
+
+    @GetMapping("/search")
+    public ResponseEntity<Page<UserResponse>> getUsersByPartialEmail(
+            @PageableDefault(sort = "name")
+            Pageable pageable,
+            @RequestParam String email) {
+        return ResponseEntity
+                .ok(authService.findUserByPartialEmailWithRoles(pageable, email));
     }
 }
