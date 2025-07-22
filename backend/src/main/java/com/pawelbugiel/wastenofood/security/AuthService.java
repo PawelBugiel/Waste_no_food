@@ -87,9 +87,9 @@ public class AuthService {
         userRepository.delete(user);
     }
 
-    public Page<UserResponse> getAllUsers(Pageable pageable) {
+    public Page<UserResponse> findAllWithRoles(Pageable pageable) {
 
-        return userRepository.findAll(pageable)
+        return userRepository.findAllWithRoles(pageable)
                 .map(userMapper::toUserResponse);
     }
 }

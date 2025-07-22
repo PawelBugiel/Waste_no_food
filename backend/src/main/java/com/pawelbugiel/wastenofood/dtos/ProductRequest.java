@@ -19,21 +19,28 @@ import java.time.LocalDate;
 @AllArgsConstructor
 public class ProductRequest {
 
+    public static final int MAX_PRODUCT_QUANTITY = 20_000;
+
     private static final String PRODUCT_NAME_REGEX = "^[a-zA-Z0-9]{3}.*$";
-    private static final int PRODUCT_MAX_QUANTITY = 20_000;
+    private static final int MAX_EXPIRY_YEARS_IN_FUTURE = 110;
+    private static final int MAX_NAME_LENGTH = 33;
 
     @NotBlank(message = "Product name cannot be empty or contain only whitespaces")
-    @Pattern(regexp = "^[a-zA-Z0-9]{3}.*$", message = "Product name must start with at least 3 alphanumeric characters")
-    @Size(min = 3, max = 33, message = "The name must be between 3 and 33 characters long")
+    @Pattern(regexp = "^[a-zA-Z0-9]{3}.*$",
+            message = "Product name must start with at least 3 alphanumeric characters")
+    @Size(min = 3, max = MAX_NAME_LENGTH,
+            message = "The name must be between at least 3 and max " + MAX_NAME_LENGTH + " characters long")
     private final String name;
 
     @Min(value = 1, message = "Quantity must be at least 1")
-    @Max(value = PRODUCT_MAX_QUANTITY, message = "Quantity must not exceed " + PRODUCT_MAX_QUANTITY)
+    @Max(value = MAX_PRODUCT_QUANTITY,
+            message = "Quantity must not exceed " + MAX_PRODUCT_QUANTITY)
     private final Integer quantity;
 
     @NotNull(message = "Expiry date cannot be null")
     @FutureOrPresent(message = "Expiry date must be today or in the future")
-    @ValidExpiryDate(message = "Expiry date cannot be more than 100 years in the future")
+    @ValidExpiryDate(maxYearsInFuture = MAX_EXPIRY_YEARS_IN_FUTURE,
+            message = "Expiry date cannot be more than " + MAX_EXPIRY_YEARS_IN_FUTURE + " years in the future")
     private final LocalDate expiryDate;
 
 }

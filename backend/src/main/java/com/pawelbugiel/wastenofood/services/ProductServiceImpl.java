@@ -17,10 +17,11 @@ import org.springframework.transaction.annotation.Transactional;
 import java.util.Optional;
 import java.util.UUID;
 
+import static com.pawelbugiel.wastenofood.dtos.ProductRequest.MAX_PRODUCT_QUANTITY;
+
 @Service
 public class ProductServiceImpl implements ProductService {
 
-    private static final int PRODUCT_MAX_QUANTITY = 20_000;
     private final static Logger log = LoggerFactory.getLogger(ProductServiceImpl.class);
 
     private final ProductRepository productRepository;
@@ -93,8 +94,8 @@ public class ProductServiceImpl implements ProductService {
 
         objectValidator.validate(productRequest);
 
-        if(productRequest.getQuantity() > PRODUCT_MAX_QUANTITY) {
-            throw new IllegalArgumentException("Product quantity cannot exceed " + PRODUCT_MAX_QUANTITY);
+        if(productRequest.getQuantity() > MAX_PRODUCT_QUANTITY) {
+            throw new IllegalArgumentException("Product quantity cannot exceed " + MAX_PRODUCT_QUANTITY);
         }
 
         Product productToUpdate = findProductByIdOrThrow(id);
@@ -143,8 +144,8 @@ public class ProductServiceImpl implements ProductService {
                 .orElseThrow(() -> new ProductNotFoundException(id));
     }
     private static void checkIfUpdatedProductQuantityExceedsMaxQuantity(int productQuantityAfterUpdate) {
-        if (productQuantityAfterUpdate > PRODUCT_MAX_QUANTITY) {
-            throw new IllegalArgumentException("Product quantity cannot exceed " + PRODUCT_MAX_QUANTITY);
+        if (productQuantityAfterUpdate > MAX_PRODUCT_QUANTITY) {
+            throw new IllegalArgumentException("Product quantity cannot exceed " + MAX_PRODUCT_QUANTITY);
         }
     }
 }

@@ -49,6 +49,6 @@ public class AuthController {
     public ResponseEntity<Page<UserResponse>> getAllUsers(
             @PageableDefault(sort = "name")
             Pageable pageable) {
-        return ResponseEntity.ok(authService.getAllUsers(pageable));
+        return ResponseEntity.ok(authService.findAllWithRoles(pageable));
     }
 }
