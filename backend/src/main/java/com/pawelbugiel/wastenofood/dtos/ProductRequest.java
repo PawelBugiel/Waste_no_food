@@ -1,7 +1,11 @@
 package com.pawelbugiel.wastenofood.dtos;
 
+import com.pawelbugiel.wastenofood.validators.annotations.ValidExpiryDate;
 import jakarta.validation.constraints.*;
-import lombok.*;
+import lombok.AllArgsConstructor;
+import lombok.Builder;
+import lombok.Getter;
+import lombok.ToString;
 
 import java.time.LocalDate;
 
@@ -29,5 +33,7 @@ public class ProductRequest {
 
     @NotNull(message = "Expiry date cannot be null")
     @FutureOrPresent(message = "Expiry date must be today or in the future")
+    @ValidExpiryDate(message = "Expiry date cannot be more than 100 years in the future")
     private final LocalDate expiryDate;
+
 }
