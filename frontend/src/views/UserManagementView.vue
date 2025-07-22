@@ -14,56 +14,48 @@
     </h2>
 
     <form @submit.prevent="registerUser" class="mb-4">
-      <div class="mb-3 text-start" style="max-width: 800px;">
-        <div class="row g-3">
-          <div class="col-sm">
-            <label for="register-email" class="form-label">Email:</label>
-            <input v-model="newUser.email" type="email" id="register-email" class="form-control form-control-sm" required :disabled="selectedUser"/>
-          </div>
-          <div class="col-sm">
-            <label for="register-password" class="form-label">Password:</label>
-            <input v-model="newUser.password" type="password" id="register-password" class="form-control form-control-sm" required :disabled="selectedUser"/>
-          </div>
+      <div class="row g-3">
+        <div class="col-md-4 text-start">
+          <label for="register-email" class="form-label">Email:</label>
+          <input v-model="newUser.email" type="email" id="register-email" class="form-control form-control-sm" required :disabled="selectedUser"/>
         </div>
-      </div>
-      <div class="mb-3 text-start" style="max-width: 500px;">
-        <div class="row g-2">
-          <div class="col">
-            <label for="register-role" class="form-label">Role:</label>
-            <select v-model="newUser.role" id="register-role" class="form-select form-select-sm" :disabled="selectedUser">
-              <option value="ENDUSER">End user</option>
-              <option value="ADMIN">Administrator</option>
-            </select>
-          </div>
-          <div class="col">
-          </div>
+        <div class="col-md-4 text-start">
+          <label for="register-password" class="form-label">Password:</label>
+          <input v-model="newUser.password" type="password" id="register-password" class="form-control form-control-sm" required :disabled="selectedUser"/>
         </div>
-      </div>
-      <div class="mb-3" style="max-width: 500px;">
-        <div class="row g-2">
-          <div class="col">
-            <button :disabled="selectedUser" type="submit" class="btn btn-custom-register btn-sm w-100 h-100">
-              Register new user
-            </button>
-          </div>
-          <div class="col">
-            <button @click="deleteSelectedUser" :disabled="!selectedUser" type="button" class="btn btn-sm btn-custom-delete w-100 h-100">
-              Delete Selected User
-            </button>
-          </div>
+        <div class="col-md-4 text-start">
+          <label for="register-role" class="form-label">Role:</label>
+          <select v-model="newUser.role" id="register-role" class="form-select form-select-sm" :disabled="selectedUser">
+            <option value="ENDUSER">End user</option>
+            <option value="ADMIN">Administrator</option>
+          </select>
         </div>
       </div>
       <p v-if="registerError" class="text-danger mt-2">{{ registerError }}</p>
     </form>
 
-    <div class="mb-4 text-start" style="max-width: 800px;">
-      <div class="row">
-        <div class="col-sm-6">
-          <label for="search-by-email" class="form-label">Search by email:</label>
-          <input v-model="searchQuery" type="text" id="search-by-email" class="form-control form-control-sm" @input="fetchUsers" :disabled="selectedUser" />
+    <div class="row g-3 mb-3">
+      <div class="col-md-4 text-start">
+        <label for="search-by-email" class="form-label">Search by email:</label>
+        <input v-model="searchQuery" type="text" id="search-by-email" class="form-control form-control-sm" @input="fetchUsers" :disabled="selectedUser" />
+      </div>
+    </div>
+
+    <div class="mb-3" style="max-width: 500px;">
+      <div class="row g-2">
+        <div class="col">
+          <button :disabled="selectedUser" type="submit" @click="registerUser" class="btn btn-custom-register btn-sm w-100 h-100">
+            Register new user
+          </button>
+        </div>
+        <div class="col">
+          <button @click="deleteSelectedUser" :disabled="!selectedUser" type="button" class="btn btn-sm btn-custom-delete w-100 h-100">
+            Delete Selected User
+          </button>
         </div>
       </div>
     </div>
+
 
     <div v-if="error" class="alert alert-danger">
       {{ error }}
@@ -72,6 +64,7 @@
     <table class="table table-striped" v-if="users.length">
       <thead>
       <tr>
+        <th style="width: 50px;">Lp.</th>
         <th style="width: 50px;">Select</th>
         <th>
           <a href="#" @click.prevent="sort('email')">Email</a>
@@ -84,11 +77,12 @@
       </tr>
       </thead>
       <tbody>
-      <tr v-for="user in users"
+      <tr v-for="(user, index) in users"
           :key="user.id"
           @click="selectUser(user)"
           :class="{ 'table-active': selectedUser && selectedUser.id === user.id }"
           style="cursor: pointer;">
+        <td>{{ (currentPage * pageSize) + index + 1 }}</td>
         <td>
           <input type="radio" :value="user.id" v-model="selectedUserId" @click.stop>
         </td>
@@ -124,10 +118,11 @@ const selectedUserId = ref(null);
 // --- Stan paginacji i sortowania ---
 const currentPage = ref(0);
 const totalPages = ref(0);
+const pageSize = ref(10);
 const sortBy = ref('email');
 const sortDirection = ref('asc');
 
-// NOWOŚĆ: Stan dla wyszukiwarki
+// --- Stan wyszukiwarki ---
 const searchQuery = ref('');
 
 const authStore = useAuthStore();
@@ -135,6 +130,7 @@ const router = useRouter();
 
 // --- Obserwatory ---
 watch([currentPage, sortBy, sortDirection], () => fetchUsers());
+
 watch(selectedUserId, (newId) => {
   if (newId) {
     selectedUser.value = users.value.find(user => user.id === newId);
@@ -143,7 +139,6 @@ watch(selectedUserId, (newId) => {
   }
 });
 
-// NOWOŚĆ: Obserwator resetujący stronę przy nowym wyszukiwaniu
 watch(searchQuery, (newValue, oldValue) => {
   if (newValue !== oldValue) {
     currentPage.value = 0;
@@ -152,13 +147,12 @@ watch(searchQuery, (newValue, oldValue) => {
 
 
 // --- Metody ---
-// ZMIANA: Metoda fetchUsers obsługuje teraz wyszukiwanie
 const fetchUsers = async () => {
   try {
     let endpoint = '/auth/users';
     const params = {
       page: currentPage.value,
-      size: 10,
+      size: pageSize.value,
       sort: `${sortBy.value},${sortDirection.value}`
     };
 
@@ -174,8 +168,12 @@ const fetchUsers = async () => {
     users.value = response.data.content;
     totalPages.value = response.data.totalPages;
     error.value = '';
-    selectedUser.value = null;
-    selectedUserId.value = null;
+
+    // Nie czyść zaznaczenia, jeśli jesteśmy w trakcie wyszukiwania
+    if (!searchQuery.value) {
+      selectedUser.value = null;
+      selectedUserId.value = null;
+    }
   } catch (err) {
     error.value = 'Failed to load users. Please check your authentication.';
     users.value = [];
@@ -184,6 +182,7 @@ const fetchUsers = async () => {
 };
 
 const registerUser = async () => {
+  if (selectedUser.value) return; // Dodatkowe zabezpieczenie
   try {
     const endpoint = newUser.value.role === 'ADMIN' ? '/auth/register-admin' : '/auth/register-enduser';
     await axios.post(endpoint, {
@@ -256,3 +255,10 @@ onMounted(() => {
   fetchUsers();
 });
 </script>
+
+<style scoped>
+.table-active {
+  background-color: #e0f2f1 !important;
+  font-weight: bold;
+}
+</style>

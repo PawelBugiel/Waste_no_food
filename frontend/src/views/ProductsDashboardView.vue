@@ -37,11 +37,11 @@
           <input v-model="searchQuery" type="text" id="search-by-name" class="form-control form-control-sm" @input="fetchProducts" :disabled="isEditMode"/>
         </div>
 
-        <div class="col-md-auto text-start align-self-end">
-          <div v-if="isEditMode">
-            <button type="submit" class="btn btn-custom-edit-update btn-sm">Update</button>
-            <button @click="cancelEdit" type="button" class="btn btn-secondary btn-sm ms-2">Cancel</button>
-          </div>
+        <div class="col-md-8"></div>
+
+        <div class="col-12 text-start mt-2" v-if="isEditMode">
+          <button type="submit" class="btn btn-custom-edit-update btn-sm">Update</button>
+          <button @click="cancelEdit" type="button" class="btn btn-secondary btn-sm ms-2">Cancel</button>
         </div>
       </div>
       <p v-if="addProductError" class="text-danger mt-2">{{ addProductError }}</p>
@@ -73,6 +73,7 @@
     <table class="table table-striped">
       <thead>
       <tr>
+        <th style="width: 50px;">Lp.</th>
         <th style="width: 50px;">Select</th>
         <th><a href="#" @click.prevent="sort('name')">Name</a><span
             v-if="sortBy === 'name'">{{ sortDirection === 'asc' ? '↑' : '↓' }}</span></th>
@@ -85,17 +86,19 @@
       </tr>
       </thead>
       <tbody :class="{ 'locked-for-edit': isEditMode }">
-      <tr v-for="product in productsWithDaysLeft"
+      <tr v-for="(product, index) in productsWithDaysLeft"
           :key="product.id"
           @click="selectProduct(product)"
           :class="{
-        'table-active': selectedProduct && selectedProduct.id === product.id,
-        'row-expired': product.daysToExpire < 0,
-        'row-expiring-soon': product.daysToExpire >= 0 && product.daysToExpire <= 3
-      }"
+            'table-active': selectedProduct && selectedProduct.id === product.id,
+            'row-expired': product.daysToExpire < 0,
+            'row-expiring-soon': product.daysToExpire >= 0 && product.daysToExpire <= 3
+          }"
           :style="{ cursor: isEditMode ? 'not-allowed' : 'pointer' }">
 
-        <td><input type="radio" :value="product.id" v-model="selectedProductId" @click.stop="selectProduct(product)" :disabled="isEditMode">
+        <td>{{ (currentPage * pageSize) + index + 1 }}</td>
+        <td><input type="radio" :value="product.id" v-model="selectedProductId" @click.stop="selectProduct(product)"
+                   :disabled="isEditMode">
         </td>
         <td>{{ product.name }}</td>
         <td>{{ product.quantity }}</td>
@@ -159,7 +162,8 @@ const selectedProductId = ref(null);
 
 // --- Stan paginacji i sortowania ---
 const currentPage = ref(0);
-const totalPages = ref(0); // NOWOŚĆ: Zastępuje hasMoreProducts
+const totalPages = ref(0);
+const pageSize = ref(10);
 const sortBy = ref('expiryDate');
 const sortDirection = ref('asc');
 
@@ -190,13 +194,18 @@ watch(selectedProductId, (newId) => {
   }
 });
 
+watch(searchQuery, (newValue, oldValue) => {
+  if (newValue !== oldValue) {
+    currentPage.value = 0;
+  }
+});
+
 // --- Metody ---
 const fetchProducts = async () => {
   try {
-    // ZMIANA: Dostosowanie parametrów do standardu Pageable
     const params = {
       page: currentPage.value,
-      size: 10, // Domyślny rozmiar strony
+      size: pageSize.value,
       sort: `${sortBy.value},${sortDirection.value}`
     };
     if (searchQuery.value) {
@@ -206,12 +215,13 @@ const fetchProducts = async () => {
       params,
       headers: {Authorization: `Bearer ${authStore.token}`}
     });
-    // ZMIANA: Poprawne odczytywanie danych z obiektu Page
     products.value = response.data.content;
     totalPages.value = response.data.totalPages;
     error.value = null;
-    selectedProduct.value = null;
-    selectedProductId.value = null;
+    if (!isEditMode.value) {
+      selectedProduct.value = null;
+      selectedProductId.value = null;
+    }
   } catch (err) {
     error.value = 'Failed to load products. Check if the server is running..';
     totalPages.value = 0;
@@ -223,7 +233,7 @@ const addProduct = async () => {
     await axios.post('/products', newProduct.value, {headers: {Authorization: `Bearer ${authStore.token}`}});
     newProduct.value = {name: '', quantity: null, expiryDate: ''};
     addProductError.value = null;
-    currentPage.value = 0; // Resetuj do pierwszej strony
+    currentPage.value = 0;
     await fetchProducts();
   } catch (err) {
     addProductError.value = 'Failed to add product.';
@@ -275,7 +285,6 @@ const deleteProduct = async () => {
     productToDelete.value = null;
     selectedProduct.value = null;
     selectedProductId.value = null;
-    // Sprawdź, czy po usunięciu strona nie jest pusta
     if (products.value.length === 1 && currentPage.value > 0) {
       currentPage.value--;
     } else {
@@ -293,7 +302,7 @@ const sort = (field) => {
     sortBy.value = field;
     sortDirection.value = 'asc';
   }
-  currentPage.value = 0; // Resetuj do pierwszej strony przy sortowaniu
+  currentPage.value = 0;
 };
 
 const logout = () => {
@@ -302,7 +311,7 @@ const logout = () => {
 };
 
 const selectProduct = (product) => {
-  if (isEditMode.value) return; // Jeśli jesteśmy w trybie edycji, natychmiast zakończ działanie funkcji
+  if (isEditMode.value) return;
 
   if (selectedProduct.value && selectedProduct.value.id === product.id) {
     selectedProduct.value = null;
@@ -313,7 +322,6 @@ const selectProduct = (product) => {
   }
 };
 
-// NOWOŚĆ: Metody do nawigacji stronami
 const nextPage = () => {
   if (currentPage.value < totalPages.value - 1) {
     currentPage.value++;
@@ -355,6 +363,6 @@ onMounted(() => {
 }
 
 .locked-for-edit tr.table-active {
-  opacity: 1; /* Upewnij się, że zaznaczony wiersz pozostaje w pełni widoczny */
+  opacity: 1;
 }
 </style>
