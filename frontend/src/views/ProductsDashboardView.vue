@@ -34,14 +34,14 @@
 
         <div class="col-md-4 text-start">
           <label for="search-by-name" class="form-label">Search by name:</label>
-          <input v-model="searchQuery" type="text" id="search-by-name" class="form-control form-control-sm" @input="fetchProducts"/>
+          <input v-model="searchQuery" type="text" id="search-by-name" class="form-control form-control-sm" @input="fetchProducts" :disabled="isEditMode"/>
         </div>
 
-        <div class="col-md-8"></div>
-
-        <div class="col-12 text-start mt-2" v-if="isEditMode">
-          <button type="submit" class="btn btn-custom-edit-update btn-sm">Update</button>
-          <button @click="cancelEdit" type="button" class="btn btn-secondary btn-sm ms-2">Cancel</button>
+        <div class="col-md-auto text-start align-self-end">
+          <div v-if="isEditMode">
+            <button type="submit" class="btn btn-custom-edit-update btn-sm">Update</button>
+            <button @click="cancelEdit" type="button" class="btn btn-secondary btn-sm ms-2">Cancel</button>
+          </div>
         </div>
       </div>
       <p v-if="addProductError" class="text-danger mt-2">{{ addProductError }}</p>
@@ -62,7 +62,7 @@
           </button>
         </div>
         <div class="col">
-          <button @click="showDeleteModal(selectedProduct)" :disabled="!selectedProduct"
+          <button @click="showDeleteModal(selectedProduct)" :disabled="!selectedProduct || isEditMode"
                   class="btn btn-sm btn-custom-delete w-100 h-100">
             Delete selected product
           </button>
@@ -84,7 +84,7 @@
             v-if="sortBy === 'expiryDate'">{{ sortDirection === 'asc' ? '↑' : '↓' }}</span></th>
       </tr>
       </thead>
-      <tbody>
+      <tbody :class="{ 'locked-for-edit': isEditMode }">
       <tr v-for="product in productsWithDaysLeft"
           :key="product.id"
           @click="selectProduct(product)"
@@ -93,9 +93,9 @@
         'row-expired': product.daysToExpire < 0,
         'row-expiring-soon': product.daysToExpire >= 0 && product.daysToExpire <= 3
       }"
-          style="cursor: pointer;">
+          :style="{ cursor: isEditMode ? 'not-allowed' : 'pointer' }">
 
-        <td><input type="radio" :value="product.id" v-model="selectedProductId" @click.stop="selectProduct(product)">
+        <td><input type="radio" :value="product.id" v-model="selectedProductId" @click.stop="selectProduct(product)" :disabled="isEditMode">
         </td>
         <td>{{ product.name }}</td>
         <td>{{ product.quantity }}</td>
@@ -302,6 +302,8 @@ const logout = () => {
 };
 
 const selectProduct = (product) => {
+  if (isEditMode.value) return; // Jeśli jesteśmy w trybie edycji, natychmiast zakończ działanie funkcji
+
   if (selectedProduct.value && selectedProduct.value.id === product.id) {
     selectedProduct.value = null;
     selectedProductId.value = null;
@@ -346,5 +348,13 @@ onMounted(() => {
 .row-expiring-soon td {
   color: #BC5A0E;
   font-weight: bold;
+}
+
+.locked-for-edit tr {
+  opacity: 0.6;
+}
+
+.locked-for-edit tr.table-active {
+  opacity: 1; /* Upewnij się, że zaznaczony wiersz pozostaje w pełni widoczny */
 }
 </style>
