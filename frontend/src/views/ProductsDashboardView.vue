@@ -4,7 +4,7 @@
       <div>
         <router-link v-if="authStore.role === 'ADMIN'" to="/users" class="btn btn-info btn-compact btn-sm d-inline-flex align-items-center">
           <img src="@/assets/images/users_logo.webp" alt="" class="btn-icon-sm">
-          <span>Manage Users</span>
+          <span>Manage users</span>
         </router-link>
       </div>
       <div>
@@ -14,7 +14,7 @@
 
     <h2 class="mb-4 d-flex align-items-center justify-content-center">
       <img src="@/assets/images/products_logo.webp" alt="Products icon" class="heading-icon">
-      <span>Products Dashboard</span>
+      <span>Product Dashboard</span>
     </h2>
 
     <form @submit.prevent="updateProduct()" class="mb-4">
@@ -28,7 +28,7 @@
           <input v-model.number="newProduct.quantity" type="number" class="form-control form-control-sm" id="product-quantity" required/>
         </div>
         <div class="col-md-4 text-start">
-          <label for="product-expiry" class="form-label">Expiry Date:</label>
+          <label for="product-expiry" class="form-label">Expiry date:</label>
           <input v-model="newProduct.expiryDate" type="date" class="form-control form-control-sm" id="product-expiry" required/>
         </div>
 
@@ -37,11 +37,11 @@
           <input v-model="searchQuery" type="text" id="search-by-name" class="form-control form-control-sm" @input="fetchProducts" :disabled="isEditMode"/>
         </div>
 
-        <div class="col-md-8"></div>
-
-        <div class="col-12 text-start mt-2" v-if="isEditMode">
-          <button type="submit" class="btn btn-custom-edit-update btn-sm">Update</button>
-          <button @click="cancelEdit" type="button" class="btn btn-secondary btn-sm ms-2">Cancel</button>
+        <div class="col-md-8 text-start align-self-end">
+          <div v-if="isEditMode">
+            <button type="submit" class="btn btn-custom-edit-update btn-sm">Update</button>
+            <button @click="cancelEdit" type="button" class="btn btn-secondary btn-sm ms-2">Cancel</button>
+          </div>
         </div>
       </div>
       <p v-if="addProductError" class="text-danger mt-2">{{ addProductError }}</p>
@@ -73,15 +73,15 @@
     <table class="table table-striped">
       <thead>
       <tr>
-        <th style="width: 50px;">Lp.</th>
+        <th style="width: 50px;">No.</th>
         <th style="width: 50px;">Select</th>
         <th><a href="#" @click.prevent="sort('name')">Name</a><span
             v-if="sortBy === 'name'">{{ sortDirection === 'asc' ? '↑' : '↓' }}</span></th>
         <th><a href="#" @click.prevent="sort('quantity')">Quantity</a><span
             v-if="sortBy === 'quantity'">{{ sortDirection === 'asc' ? '↑' : '↓' }}</span></th>
-        <th><a href="#" @click.prevent="sort('expiryDate')">Expiry Date</a><span
+        <th><a href="#" @click.prevent="sort('expiryDate')">Expiry date</a><span
             v-if="sortBy === 'expiryDate'">{{ sortDirection === 'asc' ? '↑' : '↓' }}</span></th>
-        <th><a href="#" @click.prevent="sort('expiryDate')">Days to Expiry</a><span
+        <th><a href="#" @click.prevent="sort('expiryDate')">Days to expiry</a><span
             v-if="sortBy === 'expiryDate'">{{ sortDirection === 'asc' ? '↑' : '↓' }}</span></th>
       </tr>
       </thead>

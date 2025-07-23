@@ -3,7 +3,7 @@
     <div class="d-flex justify-content-between align-items-center mb-4">
       <router-link to="/home" class="btn btn-info btn-sm btn-compact d-inline-flex align-items-center">
         <img src="@/assets/images/products_logo.webp" alt="" class="btn-icon-sm">
-        <span>Manage Products</span>
+        <span>Manage products</span>
       </router-link>
       <button @click="logout" class="btn btn-info btn-sm btn-compact btn-logout">Logout</button>
     </div>
@@ -13,7 +13,7 @@
       <span>User Management</span>
     </h2>
 
-    <form @submit.prevent="registerUser" class="mb-4">
+    <form @submit.prevent="registerUser" class="mb-3">
       <div class="row g-3">
         <div class="col-md-4 text-start">
           <label for="register-email" class="form-label">Email:</label>
@@ -50,7 +50,7 @@
         </div>
         <div class="col">
           <button @click="deleteSelectedUser" :disabled="!selectedUser" type="button" class="btn btn-sm btn-custom-delete w-100 h-100">
-            Delete Selected User
+            Delete selected user
           </button>
         </div>
       </div>
@@ -64,7 +64,7 @@
     <table class="table table-striped" v-if="users.length">
       <thead>
       <tr>
-        <th style="width: 50px;">Lp.</th>
+        <th style="width: 50px;">No.</th>
         <th style="width: 50px;">Select</th>
         <th>
           <a href="#" @click.prevent="sort('email')">Email</a>
@@ -245,8 +245,10 @@ const logout = () => {
 
 const selectUser = (user) => {
   if (selectedUser.value && selectedUser.value.id === user.id) {
+    selectedUser.value = null;
     selectedUserId.value = null;
   } else {
+    selectedUser.value = user;
     selectedUserId.value = user.id;
   }
 };
