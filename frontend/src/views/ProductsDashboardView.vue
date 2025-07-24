@@ -251,7 +251,7 @@ const updateProduct = async () => {
     await fetchProducts();
   } catch (err) {
     console.error('Update error:', err.response?.data || err.message);
-    addProductError.value = err.response?.data?.message || 'Failed to update product.';
+    addProductError.value = err.response?.data?.exceptionMessage || 'Failed to update product.';
   }
 };
 

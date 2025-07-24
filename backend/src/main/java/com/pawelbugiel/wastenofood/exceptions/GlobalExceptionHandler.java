@@ -3,7 +3,6 @@ package com.pawelbugiel.wastenofood.exceptions;
 import jakarta.validation.ConstraintViolationException;
 import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.http.HttpStatus;
-import org.springframework.http.ResponseEntity;
 import org.springframework.validation.FieldError;
 import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.annotation.ExceptionHandler;
@@ -18,53 +17,62 @@ import java.util.Map;
 @RestControllerAdvice
 public class GlobalExceptionHandler {
 
-    @ExceptionHandler(IdException.class)
-    @ResponseStatus(HttpStatus.BAD_REQUEST)
-    public String idExceptionHandler(IdException ex) {
-        return ex.getMessage();
-    }
-
-    @ExceptionHandler(MethodArgumentTypeMismatchException.class)
-    public ResponseEntity<String> handleTypeMismatch(MethodArgumentTypeMismatchException ex) {
-        return ResponseEntity.badRequest().body("Invalid UUID format: " + ex.getValue());
-    }
-
-    @ExceptionHandler(ProductNotFoundException.class)
-    @ResponseStatus(HttpStatus.NOT_FOUND)
-    public String productNotFoundExceptionHandler(ProductNotFoundException ex) {
-        return (ex.getMessage());
-    }
-
     @ExceptionHandler(MethodArgumentNotValidException.class)
     @ResponseStatus(HttpStatus.BAD_REQUEST)
-    public Map<String, String> validationExceptionHandler(MethodArgumentNotValidException ex) {
+    public ApiError handleValidationExceptions(MethodArgumentNotValidException ex) {
+        HttpStatus status = HttpStatus.BAD_REQUEST;
         Map<String, String> errors = new HashMap<>();
         ex.getBindingResult().getAllErrors().forEach(error -> {
             String fieldName = ((FieldError) error).getField();
             String errorMessage = error.getDefaultMessage();
             errors.put(fieldName, errorMessage);
         });
-        return errors;
+
+        String message = "Validation failed. Check 'validationErrors' field for details.";
+
+        return new ApiError(status.value(), status.getReasonPhrase(), message, errors);
+    }
+
+    @ExceptionHandler(ProductNotFoundException.class)
+    @ResponseStatus(HttpStatus.NOT_FOUND)
+    public ApiError handleProductNotFound(ProductNotFoundException ex) {
+        String message = "Requested product not found.";
+
+        return createApiError(HttpStatus.NOT_FOUND, message, null);
+    }
+
+    @ExceptionHandler(MethodArgumentTypeMismatchException.class)
+    @ResponseStatus(HttpStatus.BAD_REQUEST)
+    public ApiError handleTypeMismatch(MethodArgumentTypeMismatchException ex) {
+        String message = String.format("Invalid parameter type. Field '%s' requires a different type.", ex.getName());
+
+        return createApiError(HttpStatus.BAD_REQUEST, message, null);
     }
 
     @ExceptionHandler(ConstraintViolationException.class)
     @ResponseStatus(HttpStatus.BAD_REQUEST)
-    public String regexValidationExceptionHandler(ConstraintViolationException ex) {
-        return "Invalid data passed ( regex violating )";
-    }
+    public ApiError handleConstraintViolation(ConstraintViolationException ex) {
+        String message = "A field value violates a specific constraint for example regex pattern.";
 
-    @ExceptionHandler(PageException.class)
-    @ResponseStatus(HttpStatus.BAD_REQUEST)
-    public String pageValidationExceptionHandler(PageException ex) {
-        return (ex.getMessage());
+        return createApiError(HttpStatus.BAD_REQUEST, message, null);
     }
 
     @ExceptionHandler(DataIntegrityViolationException.class)
     @ResponseStatus(HttpStatus.CONFLICT)
-    public ResponseEntity<String> dataViolationExceptionHandler(DataIntegrityViolationException ex) {
+    public ApiError handleDataIntegrityViolation(DataIntegrityViolationException ex) {
+        String message = "The resource could not be saved due to a conflict, for example a duplicate entry.";
 
-        return ResponseEntity
-                .status(HttpStatus.CONFLICT)
-                .body("A product with this name and expiry date was created simultaneously. Please try again.");
+        return createApiError(HttpStatus.CONFLICT, message, null);
+    }
+@ExceptionHandler(UserAlreadyExistsException.class)
+    public ApiError handleUserAlreadyExists(UserAlreadyExistsException ex) {
+        String message = "User with given email already exists.";
+
+        return createApiError(HttpStatus.CONFLICT, message, null);
+}
+    private ApiError createApiError(HttpStatus httpStatus,
+                                    String exceptionMessage,
+                                    Map<String, String> validationErrors) {
+        return new ApiError(httpStatus.value(), httpStatus.getReasonPhrase(), exceptionMessage, validationErrors);
     }
 }
