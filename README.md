@@ -27,15 +27,17 @@ Aplikacja webowa full-stack (Spring Boot + Vue.js) do zarządzania domową spiż
 
 ## O projekcie
 
-**Waste no food** to aplikacja webowa typu CRUD, której głównym celem biznesowym jest **pomoc w monitorowaniu dat przydatności do spożycia produktów spożywczych** i minimalizowanie ich marnotrawstwa w gospodarstwach domowych.
+**Waste no food** to aplikacja webowa typu full-stack, której głównym celem biznesowym jest **pomoc w monitorowaniu dat przydatności do spożycia produktów spożywczych** i minimalizowanie ich marnotrawstwa w gospodarstwach domowych.
 
-Projekt jest moją piaskownicą deweloperską, w której rozwijam i demonstruję praktyczne zastosowanie poniższych koncepcji technicznych:
+Ten projekt to praktyczna demonstracja moich umiejętności Java Backend Developera w tworzeniu aplikacji po stronie serwera z użyciem **Java i Spring Boot**. Moja praca nad projektem obejmowała następujące obszary:
 
-* **Architektura Full-Stack:** Integracja backendu w technologii Spring Boot z frontendem opartym na Vue.js.
-* **Bezpieczeństwo API:** Zabezpieczenie dostępu do zasobów REST API w oparciu o role przy użyciu Spring Security i tokenów JWT.
-* **Wzorce i Architektura:** Zastosowanie architektury warstwowej oraz wzorca DTO w celu zwiększenia modułowości i separacji zagadnień (SoC).
-* **Testowanie Aplikacji:** Weryfikacja logiki biznesowej za pomocą testów jednostkowych i integracyjnych (JUnit, Mockito).
-* **Zautomatyzowane Środowisko (Docker):** Użycie Docker Compose do orkiestracji usług aplikacji (backend, frontend, baza danych), włączając w to konfigurację sieci, wolumenów oraz kontrolę kolejności uruchamiania za pomocą mechanizmu `healthcheck`.
+* **Implementacja REST API:** Budowa i ochrona endpointów z użyciem **Spring Security** i **JWT**.
+* **Architektura backendu:** Zastosowanie architektury warstwowej i wzorca **DTO**
+* **Osługa błędów:** Stworzenie mechanizmu obsługi wyjątków, który dostarcza frontendowi, pomocne komunikaty o błędach.
+* **Modelowanie danych i integracja z bazą danych**: Zaprojektowanie encji JPA i zarządzanie trwałością danych w relacyjnej bazie MySQL.
+* **TBD !! Zapewnienie jakości przez automatyczne testy** jednostkowe i integracyjne (JUnit, Mockito).
+* **Środowisko deweloperskie:** Stworzenie środowiska uruchomieniowego za pomocą **Docker** i Docker Compose.
+* **Pełna funkcjonalność:** Integracja z frontendem **(Vue.js)** w celu prezentacji działającego produktu.
 
 <small>[Spis treści](#spis-treści)</small>
 
@@ -43,20 +45,22 @@ Projekt jest moją piaskownicą deweloperską, w której rozwijam i demonstruję
 
 ## Kluczowe Funkcjonalności
 
-Aplikacja oferuje bogaty zestaw funkcji do zarządzania produktami, z podziałem na role użytkowników.
+Aplikacja oferuje zestaw funkcji do zarządzania produktami, z podziałem na role użytkowników.
 
 #### Dla wszystkich zalogowanych użytkowników:
 
-* **Zarządzanie Produktami (CRUD):** Pełna obsługa cyklu życia produktów, włączając w to ich tworzenie, edycję i usuwanie z użyciem interaktywnego formularza.
-* **Wyszukiwanie po częściowej nazwie:** Dynamiczne filtrowanie listy produktów w czasie rzeczywistym po wpisaniu fragmentu nazwy.
-* **Sortowanie i Paginacja po stronie serwera:** Wydajne przeglądanie dużej liczby produktów dzięki dynamicznemu sortowaniu po kliknięciu w nagłówek kolumny oraz paginacji (następna/poprzednia strona).
+* **Zarządzanie Produktami (CRUD):** Obsługa cyklu życia produktów, włączając w to ich tworzenie, edycję i usuwanie za pomocą intuicyjnego interfejsu.
+* **Wyszukiwanie i Sortowanie**: Interaktywna lista produktów z możliwością wyszukiwania po fragmencie nazwy oraz sortowania po dowolnej kolumnie — wszystkie operacje wykonywane są po stronie serwera.
+* **Paginacja po stronie serwera:** Przeglądanie listy produktów  oraz paginacji (następna/poprzednia strona).
 * **Wizualne wskaźniki świeżości:** Automatyczne obliczanie dni do końca daty ważności i oznaczanie produktów kolorami (np. produkty bliskie przeterminowania, produkty przeterminowane) dla szybkiej identyfikacji.
 * **Bezpieczne usuwanie:** Wyświetlanie modala z prośbą o potwierdzenie przed permanentnym usunięciem produktu.
+* **Powiadomienia wizualne:** Automatyczne obliczanie dni do końca daty ważności i oznaczanie produktów kolorami (produkty przeterminowane lub bliskie terminu), co ułatwia priorytetyzację.
+
 
 #### Dodatkowo dla Administratora:
 
 * **Zarządzanie użytkownikami:** Dostęp do dedykowanego panelu umożliwiającego przeglądanie, tworzenie i usuwanie kont użytkowników oraz przypisywanie im ról.
-* **Dostęp do dokumentacji API:** Możliwość przeglądania interaktywnej dokumentacji Swagger UI.
+* **Dostęp do dokumentacji API:** Możliwość przeglądania dokumentacji Swagger UI.
 
 <small>[Spis treści](#spis-treści)</small>
 
@@ -64,11 +68,11 @@ Aplikacja oferuje bogaty zestaw funkcji do zarządzania produktami, z podziałem
 
 ## Zrzuty Ekranu
 
-| Widok Logowania | Panel Administratora |
-| :---: | :---: |
-| <a href="https://raw.githubusercontent.com/PawelBugiel/Waste_no_food/main/docs/images/LoginPage.png" target="_blank"><img src="https://raw.githubusercontent.com/PawelBugiel/Waste_no_food/main/docs/images/LoginPage.png" alt="Widok Logowania" title="Kliknij, aby powiększyć" width="400"></a> | <a href="https://raw.githubusercontent.com/PawelBugiel/Waste_no_food/main/docs/images/AdminDashboard.png" target="_blank"><img src="https://raw.githubusercontent.com/PawelBugiel/Waste_no_food/main/docs/images/AdminDashboard.png" alt="Panel Administratora" title="Kliknij, aby powiększyć" width="400"></a> |
-| **Panel Produktów** | **Zarządzanie Użytkownikami** |
-| <a href="https://raw.githubusercontent.com/PawelBugiel/Waste_no_food/main/docs/images/ProductsDashboard.png" target="_blank"><img src="https://raw.githubusercontent.com/PawelBugiel/Waste_no_food/main/docs/images/ProductsDashboard.png" alt="Panel Produktów" title="Kliknij, aby powiększyć" width="400"></a> | <a href="https://raw.githubusercontent.com/PawelBugiel/Waste_no_food/main/docs/images/UserManagement.png" target="_blank"><img src="https://raw.githubusercontent.com/PawelBugiel/Waste_no_food/main/docs/images/UserManagement.png" alt="Zarządzanie Użytkownikami" title="Kliknij, aby powiększyć" width="400"></a> |
+|                                                                                                                                                 Widok Logowania                                                                                                                                                 | Panel Administratora |
+|:---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------:| :---: |
+|        <a href="https://raw.githubusercontent.com/PawelBugiel/Waste_no_food/main/docs/images/LoginPage.png" target="_blank"><img src="https://raw.githubusercontent.com/PawelBugiel/Waste_no_food/main/docs/images/LoginPage.png" alt="Widok Logowania" title="Kliknij, aby powiększyć" width="400"></a>        | <a href="https://raw.githubusercontent.com/PawelBugiel/Waste_no_food/main/docs/images/AdminDashboard.png" target="_blank"><img src="https://raw.githubusercontent.com/PawelBugiel/Waste_no_food/main/docs/images/AdminDashboard.png" alt="Panel Administratora" title="Kliknij, aby powiększyć" width="400"></a> |
+|                                                                                                                                               **Panel Produktów**                                                                                                                                               | **Zarządzanie Użytkownikami** |
+| <a href="https://raw.githubusercontent.com/PawelBugiel/Waste_no_food/main/docs/images/ProductDashboard.png" target="_blank"><img src="https://raw.githubusercontent.com/PawelBugiel/Waste_no_food/main/docs/images/ProductDashboard.png" alt="Panel Produktów" title="Kliknij, aby powiększyć" width="400"></a> | <a href="https://raw.githubusercontent.com/PawelBugiel/Waste_no_food/main/docs/images/UserManagement.png" target="_blank"><img src="https://raw.githubusercontent.com/PawelBugiel/Waste_no_food/main/docs/images/UserManagement.png" alt="Zarządzanie Użytkownikami" title="Kliknij, aby powiększyć" width="400"></a> |
 
 <small>[Spis treści](#spis-treści)</small>
 
@@ -76,13 +80,13 @@ Aplikacja oferuje bogaty zestaw funkcji do zarządzania produktami, z podziałem
 
 ## Stos Technologiczny
 
-| Kategoria | Technologie |
-| :--- | :--- |
+| Kategoria | Technologie                                                                               |
+| :--- |:------------------------------------------------------------------------------------------|
 | **Backend** | Java 17, Spring Boot, Spring Security, Spring Data JPA, Hibernate, MapStruct, Lombok, JWT |
-| **Frontend** | Vue.js 3, Vue Router, Pinia, Bootstrap, Node.js |
-| **Baza Danych** | MySQL |
-| **Testowanie** | JUnit 5, Mockito, JaCoCo |
-| **DevOps & Narzędzia** | Docker, Docker Compose, Git, Maven, IntelliJ IDEA, Postman, OpenAPI (Swagger) |
+| **Frontend** | Vue.js 3, Vue Router, Pinia, Bootstrap, Node.js                                           |
+| **Baza Danych** | MySQL                                                                                     |
+| **Testowanie** | JUnit 5, Mockito                                                                          |
+| **DevOps & Narzędzia** | Docker, Docker Compose, Git, Maven, IntelliJ IDEA, Postman, OpenAPI (Swagger)             |
 
 <small>[Spis treści](#spis-treści)</small>
 
@@ -156,26 +160,31 @@ docker-compose down
 
 ## Roadmap / Plan Rozwoju
 
-Poniżej znajduje się lista planowanych i zrealizowanych zadań dla projektu:
+Lista planowanych i zrealizowanych zadań dla projektu:
 
 * **Backend & Dane**
-  * [x] Skonfigurowanie bazy danych i warstwy JPA.
-  * [x] Implementacja REST API dla operacji CRUD na produktach.
-  * [x] Implementacja uwierzytelniania i autoryzacji z JWT.
-  * [ ] Pokrycie kodu backendu kompleksowymi testami jednostkowymi i integracyjnymi.
-  * [ ] Integracja z zewnętrznym API (**Open Food Facts API**) w celu automatycznego pobierania danych o produktach.
+  * [x] Skonfigurowanie bazy danych (MySQL) i warstwy utrwalania danych (Spring Data JPA).
+  * [x] Implementacja REST API dla operacji CRUD na produktach i użytkownikach. 
+  * [x] Zabezpieczenie API za pomocą Spring Security i autoryzacji opartej na JWT.
+  * [x] Zaimplementowanie centralnej obsługi wyjątków w oparciu o AOP (@RestControllerAdvice).
+  * [ ] Pokrycie kodu backendu testami jednostkowymi i integracyjnymi.
   * [ ] Dodanie logowania i monitorowania (np. Logback/SLF4J).
+  * [ ] Integracja z zewnętrznym API (**Open Food Facts API**) w celu automatycznego pobierania danych o produktach.
 
 * **Frontend (UI)**
-  * [x] Rozwój interfejsu w Vue.js z Vue Router i Pinia.
-  * [x] Strona logowania/rejestracji oraz widok listy produktów.
-  * [x] Formularze do dodawania i edycji produktów.
-  * [ ] Obsługa błędów i walidacja po stronie klienta.
-  * [ ] Implementacja zaawansowanych funkcji UI (wyszukiwanie, filtrowanie, sortowanie).
+  * [x] Zbudowanie interfejsu użytkownika w technologii Vue.js (z Vue Router i Pinia).
+  * [x] Widoki: logowania, panelu administratora, panelu produktów i panelu zarządzania użytkownikami.
+  * [x] Dopracowanie User Experience (UX):
+    * Ujednolicony wygląd i stylistyka kolorystyczna.
+    * Blokowanie nieaktywnych pól i przycisków podczas edycji, aby zapobiec błędom.
+    * Wizualne sygnały dla użytkownika (zmiana koloru i kursora dla nieaktywnych elementów).
+    * Zaprojektowane ikony dla kluczowych akcji.
+  * [ ] Obsługa błędów. 
 
 * **DevOps & Deployment**
-  * [x] Przygotowanie konfiguracji Docker Compose.
-  * [ ] Konfiguracja CI/CD przy użyciu **GitHub Actions**.
+  * [x] Konteneryzacja aplikacji (Docker & Docker Compose):
+    * Przygotowanie plików `Dockerfile` do budowania obrazów dla backendu i frontendu.
+    * Stworzenie konfiguracji `docker-compose.yml` do orkiestracji usług.
   * [ ] Wdrożenie aplikacji na platformie chmurowej (np. AWS, Oracle Cloud).
 
 <small>[Spis treści](#spis-treści)</small>
