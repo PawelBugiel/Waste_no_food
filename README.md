@@ -179,7 +179,8 @@ Lista planowanych i zrealizowanych zadań dla projektu:
     * Blokowanie nieaktywnych pól i przycisków podczas edycji, aby zapobiec błędom.
     * Wizualne sygnały dla użytkownika (zmiana koloru i kursora dla nieaktywnych elementów).
     * Zaprojektowane ikony dla kluczowych akcji.
-  * [ ] Obsługa błędów. 
+  * [ ] Obsługa błędów.
+  * [ ] Refaktoryzacja UI w celu wydzielenia komponentów wielokrotnego użytku (np. przyciski, modale)..
 
 * **DevOps & Deployment**
   * [x] Konteneryzacja aplikacji (Docker & Docker Compose):

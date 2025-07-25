@@ -3,6 +3,7 @@ package com.pawelbugiel.wastenofood.services;
 import com.pawelbugiel.wastenofood.dtos.ProductRequest;
 import com.pawelbugiel.wastenofood.dtos.ProductResponse;
 import com.pawelbugiel.wastenofood.exceptions.ProductNotFoundException;
+import com.pawelbugiel.wastenofood.exceptions.ProductQuantityException;
 import com.pawelbugiel.wastenofood.mappers.ProductMapper;
 import com.pawelbugiel.wastenofood.models.Product;
 import com.pawelbugiel.wastenofood.repositories.ProductRepository;
@@ -14,7 +15,6 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import java.util.Optional;
 import java.util.UUID;
 
 import static com.pawelbugiel.wastenofood.dtos.ProductRequest.MAX_PRODUCT_QUANTITY;
@@ -38,16 +38,14 @@ public class ProductServiceImpl implements ProductService {
 
     @Override
     @Transactional
-    public ProductResponse createNewProductOrUpdateExisting(ProductRequest productRequest) {
+    public ProductResponse createNewProduct(ProductRequest productRequest) {
 
         objectValidator.validate(productRequest);
 
-        Optional<Product> existingProduct = productRepository
-                .findByNameAndExpiryDate(productRequest.getName(), productRequest.getExpiryDate());
+        Product passedProduct = productMapper.toProduct(productRequest);
+        Product savedProduct = productRepository.save(passedProduct);
 
-        return existingProduct.map(
-                product -> updateQuantityForExistingProduct(product, productRequest.getQuantity()))
-                .orElseGet(() -> createNewProduct(productRequest));
+        return productMapper.toProductResponse(savedProduct);
     }
 
     //************** READ *************
@@ -59,6 +57,7 @@ public class ProductServiceImpl implements ProductService {
                 .findAll(pageable)
                 .map(productMapper::toProductResponse);
     }
+
     @Override
     public ProductResponse findProductById(UUID id) {
         Product product = findProductByIdOrThrow(id);
@@ -94,9 +93,7 @@ public class ProductServiceImpl implements ProductService {
 
         objectValidator.validate(productRequest);
 
-        if(productRequest.getQuantity() > MAX_PRODUCT_QUANTITY) {
-            throw new IllegalArgumentException("Product quantity cannot exceed " + MAX_PRODUCT_QUANTITY);
-        }
+        checkIfProductQuantityExceedsMaxQuantity(productRequest.getQuantity());
 
         Product productToUpdate = findProductByIdOrThrow(id);
         productMapper.updateProductFromRequest(productRequest, productToUpdate);
@@ -120,32 +117,14 @@ public class ProductServiceImpl implements ProductService {
 
 //************** private methods *************
 
-    private ProductResponse createNewProduct(ProductRequest productRequest) {
-
-        Product passedProduct = productMapper.toProduct(productRequest);
-        Product savedProduct = productRepository.save(passedProduct);
-        return productMapper.toProductResponse(savedProduct);
-    }
-
-    private ProductResponse updateQuantityForExistingProduct(Product existingProduct, Integer quantityToAdd) {
-
-        checkIfUpdatedProductQuantityExceedsMaxQuantity(
-                existingProduct.getQuantity() + quantityToAdd);
-
-        existingProduct.setQuantity(existingProduct.getQuantity() + quantityToAdd);
-        Product savedProduct = productRepository.save(existingProduct);
-
-        return productMapper.toProductResponse(savedProduct);
-    }
-
     private Product findProductByIdOrThrow(UUID id) {
         return productRepository
                 .findById(id)
                 .orElseThrow(() -> new ProductNotFoundException(id));
     }
-    private static void checkIfUpdatedProductQuantityExceedsMaxQuantity(int productQuantityAfterUpdate) {
-        if (productQuantityAfterUpdate > MAX_PRODUCT_QUANTITY) {
-            throw new IllegalArgumentException("Product quantity cannot exceed " + MAX_PRODUCT_QUANTITY);
+    private static void checkIfProductQuantityExceedsMaxQuantity(int productQuantity) {
+        if (productQuantity > MAX_PRODUCT_QUANTITY) {
+                        throw new ProductQuantityException("" + productQuantity);
         }
     }
 }

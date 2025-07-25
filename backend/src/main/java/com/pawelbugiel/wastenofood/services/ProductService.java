@@ -11,7 +11,7 @@ public interface ProductService {
 
 //************** CREATE *************
 
-    ProductResponse createNewProductOrUpdateExisting(ProductRequest productRequest);
+    ProductResponse createNewProduct(ProductRequest productRequest);
 
 //************** READ *************
 

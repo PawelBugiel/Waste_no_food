@@ -30,15 +30,13 @@ public class ProductController {
         this.productService = productService;
     }
 
-//************** CREATE *************
-
     @PostMapping
-    public ResponseEntity<ProductResponse> createNewProductOrUpdateExisting(
+    public ResponseEntity<ProductResponse> createNewProduct(
             @RequestBody @Valid ProductRequest productRequest,
             UriComponentsBuilder uriBuilder) {
 
         ProductResponse resultProductResponse = productService
-                .createNewProductOrUpdateExisting(productRequest);
+                .createNewProduct(productRequest);
 
         String resourceUri = getResourceUri(uriBuilder, resultProductResponse);
 
@@ -48,8 +46,6 @@ public class ProductController {
                 .body(resultProductResponse);
     }
 
-
-//************** GET *************
     @GetMapping
     public ResponseEntity<Page<ProductResponse>> findAllProducts(Pageable pageable) {
 
@@ -92,9 +88,6 @@ public class ProductController {
                 .ok(foundProducts);
     }
 
-
-    //************** UPDATE *************
-
     @PutMapping("/{id}")
     public ResponseEntity<ProductResponse> updateProduct(
             @PathVariable UUID id,
@@ -107,10 +100,6 @@ public class ProductController {
                 .ok(updatedProductResponse);
     }
 
-
-
-    //************** DELETE *************
-
     @DeleteMapping("/{id}")
     public ResponseEntity<ProductResponse> deleteProduct(
             @PathVariable UUID id) {
@@ -122,8 +111,6 @@ public class ProductController {
                 .ok(deletedProductResponse);
     }
 
-//************** private methods ************
-
     private static String getResourceUri(UriComponentsBuilder uriBuilder,
                                          ProductResponse resultProductResponse) {
         return uriBuilder
@@ -132,4 +119,3 @@ public class ProductController {
                 .toUriString();
     }
 }
-

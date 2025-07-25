@@ -64,15 +64,27 @@ public class GlobalExceptionHandler {
 
         return createApiError(HttpStatus.CONFLICT, message, null);
     }
-@ExceptionHandler(UserAlreadyExistsException.class)
+
+    @ExceptionHandler(UserAlreadyExistsException.class)
+    @ResponseStatus(HttpStatus.CONFLICT)
     public ApiError handleUserAlreadyExists(UserAlreadyExistsException ex) {
         String message = "User with given email already exists.";
 
         return createApiError(HttpStatus.CONFLICT, message, null);
-}
+    }
+
+    @ExceptionHandler(ProductQuantityException.class)
+    @ResponseStatus(HttpStatus.BAD_REQUEST)
+    public ApiError handleProductQuantity(ProductQuantityException ex) {
+        String message = "Product quantity exceeded max quantity.";
+
+        return createApiError(HttpStatus.BAD_REQUEST, message, null);
+    }
+
     private ApiError createApiError(HttpStatus httpStatus,
                                     String exceptionMessage,
                                     Map<String, String> validationErrors) {
+
         return new ApiError(httpStatus.value(), httpStatus.getReasonPhrase(), exceptionMessage, validationErrors);
     }
 }
