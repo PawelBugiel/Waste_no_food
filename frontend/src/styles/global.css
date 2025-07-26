@@ -1,5 +1,5 @@
 /* ==========================================================================
-   1. Style Główne (Body, App)
+   1. Main
    ========================================================================== */
 
 body {
@@ -14,7 +14,7 @@ body {
 }
 
 /* ==========================================================================
-   2. Style Nagłówków i Typografii
+   2. Headings
    ========================================================================== */
 
 .product-list-heading::before {
@@ -32,7 +32,7 @@ body {
 }
 
 /* ==========================================================================
-   3. Style Formularzy
+   3. Forms
    ========================================================================== */
 
 .card {
@@ -73,7 +73,7 @@ body {
 }
 
 /* ==========================================================================
-   4. Style Tabel
+   4. Tables
    ========================================================================== */
 
 .table {
@@ -99,7 +99,7 @@ body {
 }
 
 /* ==========================================================================
-   5. Style Przycisków
+   5. Buttons
    ========================================================================== */
 
 .btn-compact {
@@ -191,7 +191,7 @@ body {
 }
 
 /* ==========================================================================
-   6. Style Ikon w Przyciskach
+   6. Button icons
    ========================================================================== */
 
 .btn-logout::before {
@@ -249,4 +249,47 @@ body {
 
 .btn-login:not(:disabled):hover .btn-icon-sm {
     filter: brightness(5);
+}
+
+/* ==========================================================================
+   6. Modals
+   ========================================================================== */
+
+.modal-custom .modal-content {
+    font-size: 0.9rem;
+    background-color: #F9EBDA;
+    border: 1px solid #F2E1C3;
+    border-radius: 0.5rem;
+}
+
+.modal-custom .modal-header {
+    padding: 0.5rem;
+    border-bottom: none;
+    justify-content: center;
+}
+
+.modal-custom .modal-body {
+    padding: 0.5rem 1rem 1rem 1rem;
+    text-align: center;
+}
+
+.modal-custom .modal-footer {
+    padding: 0.5rem;
+    border-top: 1px solid #F2E1C3;
+    justify-content: center;
+}
+
+.modal-custom .modal-title {
+    font-size: 1rem;
+    font-weight: 500;
+}
+
+.modal-custom .modal-footer .btn {
+    padding: 0.25rem 0.75rem;
+    font-size: 0.8rem;
+}
+
+.modal-custom .btn-close {
+    font-size: 0.8rem;
+    box-shadow: none;
 }

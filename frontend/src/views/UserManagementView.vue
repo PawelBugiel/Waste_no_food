@@ -49,7 +49,7 @@
           </button>
         </div>
         <div class="col">
-          <button @click="deleteSelectedUser" :disabled="!selectedUser" type="button" class="btn btn-sm btn-custom-delete w-100 h-100">
+          <button @click="showDeleteModal(selectedUser)" :disabled="!selectedUser" type="button" class="btn btn-sm btn-custom-delete w-100 h-100">
             Delete selected user
           </button>
         </div>
@@ -98,6 +98,26 @@
       <span>Page {{ currentPage + 1 }} of {{ totalPages }}</span>
       <button @click="nextPage" :disabled="currentPage >= totalPages - 1" class="btn btn-info btn-compact btn-next-page">Next</button>
     </div>
+    <div class="modal fade modal-custom" id="deleteUserModal" tabindex="-1" aria-labelledby="deleteModalLabel" aria-hidden="true">
+      <div class="modal-dialog modal-dialog-centered modal-sm">
+        <div class="modal-content">
+          <div class="modal-header">
+            <h5 class="modal-title" id="deleteModalLabel">Confirm Deletion</h5>
+            <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+          </div>
+          <div class="modal-body">
+            Are you sure you want to delete user:
+            <div class="my-2">
+              <strong>{{ userToDelete?.email }}</strong>
+            </div>
+          </div>
+          <div class="modal-footer">
+            <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+            <button type="button" class="btn btn-custom-delete" @click="confirmDeleteUser">Delete</button>
+          </div>
+        </div>
+      </div>
+    </div>
   </div>
 </template>
 
@@ -106,6 +126,7 @@ import { ref, onMounted, watch } from 'vue';
 import { useRouter } from 'vue-router';
 import axios from '@/axios.js';
 import { useAuthStore } from '@/stores/authStore';
+import { Modal } from 'bootstrap';
 
 // --- Stan komponentu ---
 const users = ref([]);
@@ -114,6 +135,8 @@ const error = ref('');
 const registerError = ref('');
 const selectedUser = ref(null);
 const selectedUserId = ref(null);
+const userToDelete = ref(null);
+const deleteModal = ref(null);
 
 // --- Stan paginacji i sortowania ---
 const currentPage = ref(0);
@@ -175,14 +198,18 @@ const fetchUsers = async () => {
       selectedUserId.value = null;
     }
   } catch (err) {
-    error.value = 'Failed to load users. Please check your authentication.';
+    if (err.response && err.response.data) {
+      error.value = err.response.data.exceptionMessage || 'An unexpected error occurred while fetching users.';
+    } else {
+      error.value = 'Could not connect to the server.';
+    }
     users.value = [];
     totalPages.value = 0;
   }
 };
 
 const registerUser = async () => {
-  if (selectedUser.value) return; // Dodatkowe zabezpieczenie
+  if (selectedUser.value) return;
   try {
     const endpoint = newUser.value.role === 'ADMIN' ? '/auth/register-admin' : '/auth/register-enduser';
     await axios.post(endpoint, {
@@ -195,24 +222,52 @@ const registerUser = async () => {
     currentPage.value = 0;
     await fetchUsers();
   } catch (err) {
-    registerError.value = 'Registration failed. Check your permissions or input.';
+    if (err.response && err.response.data) {
+      const errorData = err.response.data;
+
+      if (errorData.validationErrors) {
+        const messages = Object.values(errorData.validationErrors).join('. ');
+        registerError.value = messages;
+      } else {
+        registerError.value = errorData.exceptionMessage || 'An unexpected error occurred during registration.';
+      }
+    } else {
+      registerError.value = 'Could not connect to the server.';
+    }
   }
 };
 
-const deleteSelectedUser = async () => {
-  if (!selectedUser.value) return;
+const showDeleteModal = (user) => {
+  if (user) {
+    userToDelete.value = user;
+    deleteModal.value.show();
+  }
+};
 
-  if (confirm(`Are you sure you want to delete user ${selectedUser.value.email}?`)) {
-    try {
-      await axios.delete(`/auth/user/${selectedUser.value.id}`, { headers: { Authorization: `Bearer ${authStore.token}` } });
-      if (users.value.length === 1 && currentPage.value > 0) {
-        currentPage.value--;
-      } else {
-        await fetchUsers();
-      }
-    } catch (err) {
-      error.value = 'Failed to delete user. Check your permissions.';
+const confirmDeleteUser = async () => {
+  error.value = '';
+  if (!userToDelete.value) return;
+
+  try {
+    await axios.delete(`/auth/user/${userToDelete.value.id}`, { headers: { Authorization: `Bearer ${authStore.token}` } });
+    deleteModal.value.hide();
+
+    userToDelete.value = null;
+    selectedUser.value = null;
+    selectedUserId.value = null;
+
+    if (users.value.length === 1 && currentPage.value > 0) {
+      currentPage.value--;
+    } else {
+      await fetchUsers();
     }
+  } catch (err) {
+    if (err.response && err.response.data) {
+      error.value = err.response.data.exceptionMessage || 'An unexpected error occurred while deleting the user.';
+    } else {
+      error.value = 'Could not connect to the server.';
+    }
+    deleteModal.value.hide();
   }
 };
 
@@ -255,6 +310,10 @@ const selectUser = (user) => {
 
 onMounted(() => {
   fetchUsers();
+  const modalElement = document.getElementById('deleteUserModal');
+  if (modalElement) {
+    deleteModal.value = new Modal(modalElement);
+  }
 });
 </script>
 

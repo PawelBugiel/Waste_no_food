@@ -2,7 +2,8 @@
   <div class="container mt-4">
     <div class="d-flex justify-content-between align-items-center mb-4">
       <div>
-        <router-link v-if="authStore.role === 'ADMIN'" to="/users" class="btn btn-info btn-compact btn-sm d-inline-flex align-items-center">
+        <router-link v-if="authStore.role === 'ADMIN'" to="/users"
+                     class="btn btn-info btn-compact btn-sm d-inline-flex align-items-center">
           <img src="@/assets/images/users_logo.webp" alt="" class="btn-icon-sm">
           <span>Manage users</span>
         </router-link>
@@ -25,16 +26,19 @@
         </div>
         <div class="col-md-4 text-start">
           <label for="product-quantity" class="form-label">Quantity:</label>
-          <input v-model.number="newProduct.quantity" type="number" class="form-control form-control-sm" id="product-quantity" required/>
+          <input v-model.number="newProduct.quantity" type="number" class="form-control form-control-sm"
+                 id="product-quantity" required/>
         </div>
         <div class="col-md-4 text-start">
           <label for="product-expiry" class="form-label">Expiry date:</label>
-          <input v-model="newProduct.expiryDate" type="date" class="form-control form-control-sm" id="product-expiry" required/>
+          <input v-model="newProduct.expiryDate" type="date" class="form-control form-control-sm" id="product-expiry"
+                 required/>
         </div>
 
         <div class="col-md-4 text-start">
           <label for="search-by-name" class="form-label">Search by name:</label>
-          <input v-model="searchQuery" type="text" id="search-by-name" class="form-control form-control-sm" @input="fetchProducts" :disabled="isEditMode"/>
+          <input v-model="searchQuery" type="text" id="search-by-name" class="form-control form-control-sm"
+                 @input="fetchProducts" :disabled="isEditMode"/>
         </div>
 
         <div class="col-md-8 text-start align-self-end">
@@ -51,7 +55,8 @@
     <div class="mb-3" style="max-width: 750px;">
       <div class="row g-3">
         <div class="col">
-          <button :disabled="isEditMode || selectedProduct" @click="addProduct" class="btn btn-sm btn-custom-add w-100 h-100">
+          <button :disabled="isEditMode || selectedProduct" @click="addProduct"
+                  class="btn btn-sm btn-custom-add w-100 h-100">
             Add new product
           </button>
         </div>
@@ -122,14 +127,19 @@
       </button>
     </div>
     <div v-if="error" class="alert alert-danger">{{ error }}</div>
-    <div class="modal fade" id="deleteModal" tabindex="-1" aria-labelledby="deleteModalLabel" aria-hidden="true">
-      <div class="modal-dialog">
+    <div class="modal fade modal-custom" id="deleteModal" tabindex="-1" aria-labelledby="deleteModalLabel" aria-hidden="true">
+      <div class="modal-dialog modal-dialog-centered modal-sm">
         <div class="modal-content">
           <div class="modal-header">
             <h5 class="modal-title" id="deleteModalLabel">Confirm Deletion</h5>
             <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
           </div>
-          <div class="modal-body">Are you sure you want to delete {{ productToDelete?.name }}?</div>
+          <div class="modal-body">
+            Are you sure you want to delete product:
+            <div class="my-2">
+              <strong>{{ productToDelete?.name }}</strong>
+            </div>
+          </div>
           <div class="modal-footer">
             <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
             <button type="button" class="btn btn-custom-delete" @click="deleteProduct">Delete</button>
@@ -223,24 +233,45 @@ const fetchProducts = async () => {
       selectedProductId.value = null;
     }
   } catch (err) {
-    error.value = 'Failed to load products. Check if the server is running..';
+    if (err.response && err.response.data) {
+      error.value = err.response.data.exceptionMessage || 'An unexpected error occurred while fetching products.';
+    } else {
+      error.value = 'Could not connect to the server.';
+    }
     totalPages.value = 0;
+    products.value = [];
   }
 };
 
+// ProductsDashboardView.vue
+
 const addProduct = async () => {
+  addProductError.value = null;
   try {
     await axios.post('/products', newProduct.value, {headers: {Authorization: `Bearer ${authStore.token}`}});
     newProduct.value = {name: '', quantity: null, expiryDate: ''};
-    addProductError.value = null;
     currentPage.value = 0;
     await fetchProducts();
   } catch (err) {
-    addProductError.value = 'Failed to add product.';
+    if (err.response && err.response.data) {
+      const errorData = err.response.data;
+
+      if (errorData.validationErrors) {
+        const messages = Object.values(errorData.validationErrors).join('. ');
+        addProductError.value = messages;
+      }
+      else {
+        addProductError.value = errorData.exceptionMessage || 'Wystąpił nieznany błąd.';
+      }
+    }
+    else {
+      addProductError.value = 'Błąd komunikacji z serwerem.';
+    }
   }
 };
 
 const updateProduct = async () => {
+  addProductError.value = null;
   try {
     const productIdToUpdate = currentProduct.value.id;
     await axios.put(`/products/${productIdToUpdate}`, newProduct.value, {headers: {Authorization: `Bearer ${authStore.token}`}});
@@ -250,8 +281,19 @@ const updateProduct = async () => {
     addProductError.value = null;
     await fetchProducts();
   } catch (err) {
-    console.error('Update error:', err.response?.data || err.message);
-    addProductError.value = err.response?.data?.exceptionMessage || 'Failed to update product.';
+    if (err.response && err.response.data) {
+      const errorData = err.response.data;
+      if (errorData.validationErrors) {
+        const messages = Object.values(errorData.validationErrors).join('. ');
+        addProductError.value = messages;
+      }
+      else {
+        addProductError.value = errorData.exceptionMessage || 'An unexpected error occurred while updating the product.';
+      }
+    }
+    else {
+      addProductError.value = 'Could not connect to the server.';
+    }
   }
 };
 
@@ -291,7 +333,11 @@ const deleteProduct = async () => {
       await fetchProducts();
     }
   } catch (err) {
-    error.value = 'Failed to delete product.';
+    if (err.response && err.response.data) {
+      error.value = err.response.data.exceptionMessage || 'An unexpected error occurred while deleting the product.';
+    } else {
+      error.value = 'Could not connect to the server.';
+    }
   }
 };
 

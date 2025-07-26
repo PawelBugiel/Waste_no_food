@@ -28,7 +28,7 @@ public class GlobalExceptionHandler {
             errors.put(fieldName, errorMessage);
         });
 
-        String message = "Validation failed. Check 'validationErrors' field for details.";
+        String message = "Validation failed. Check input fields for details.";
 
         return new ApiError(status.value(), status.getReasonPhrase(), message, errors);
     }
@@ -60,7 +60,7 @@ public class GlobalExceptionHandler {
     @ExceptionHandler(DataIntegrityViolationException.class)
     @ResponseStatus(HttpStatus.CONFLICT)
     public ApiError handleDataIntegrityViolation(DataIntegrityViolationException ex) {
-        String message = "The resource could not be saved due to a conflict, for example a duplicate entry.";
+        String message = "The resource could not be saved due to a conflict";
 
         return createApiError(HttpStatus.CONFLICT, message, null);
     }
