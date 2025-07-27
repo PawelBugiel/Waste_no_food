@@ -1,22 +1,19 @@
 # Spis Treści
 
-* [BE-BUG-01-01-2025: Create product](#be-bug-01-01-2025-create-product)
-* [BE-REFINE-01-01-2025: Search by partial name](#be-refine-01-01-2025-search-by-partial-name)
+
 * [BE-BUG-01-01-2025: Update product (ponownie)](#be-bug-01-01-2025-update-product-ponownie)
-* [FE-REFINE-01-01-2025: Go to update form](#fe-refine-01-01-2025-go-to-update-form)
-* [BE-REFINE-01-01-2025: Pagination](#be-refine-01-01-2025-pagination)
 * [BE-REFINE-01-01-2025: Logging](#be-refine-01-01-2025:-logging)
 * [BE-BUG-01-01-2025: Error handling](#be-bug-01-01-2025-error-handling)
 * [BE/FE-REFINE-01-01-2025: Domyślne sortowanie](#befe-refine-01-01-2025-domyślne-sortowanie)
 * [BE-REFINE-01-01-2025: Documentation](#be-refine-01-01-2025-documentation)
 * [BE-REFINE-01-01-2025: Trimming request values](#be-refine-01-01-2025-trimming-request-values)
 * [BE-BUG-11-05-2025: Update product](#be-bug-11-05-2025-update-product)
-* [BE-REFINE-SECURITY-11-05-2025: authStore.js](#be-refine-security-11-05-2025-authstorejs)
-* [BE-REFINE-OPTIMALIZATION-25.05.2025: User management](#be-refine-optimalization-25052025-user-management)
-* [DEV-FEATURE-26.05.2025: Profile separation](#dev-feature-26052025-profile-separation)
+* [BE-REFINE-SECURITY-11-05-2025: authStore.js](#be-refine-security-11-05-2025-authstorej)
 * [BE-REFINE-SECURITY-28-05-2025: Database credentials](#be-refine-security-28-05-2025-database-credentials)
 * [FE/BE-BUG-03-06-2025: Add new product](#febe-bug-03-06-2025-add-new-product)
 * [FE/BE-FEATURE-11-06-2025: Product history](#febe-feature-11-06-2025-product-history)
+* [FE-REFINE-26-07-2025: Exception message](#fe-refine-26-07-2025-exception-message)
+* [FE-IMPROVE-27-07-2025: UPDATE EXISTING PRODUCT](#fe-improve-27-07-2025-update-existing-product)
 
 ---
 
@@ -39,22 +36,6 @@
 ## BE-BUG-01-01-2025: Update product (ponownie)
 
 * **update product** - nazwa: "A onion" działa (powiązane z tworzeniem).
-
-*<sub>[Wróć do Spisu Treści](#spis-treści)</sub>*
-
----
-
-## FE-REFINE-01-01-2025: Go to update form
-
-* **go to update form** (góra strony), jeśli chcesz zaktualizować produkt - aby uniknąć przewijania przez użytkownika.
-
-*<sub>[Wróć do Spisu Treści](#spis-treści)</sub>*
-
----
-
-## BE-REFINE-01-01-2025: Pagination
-
-* **pagination** - zmień QueryParam na Page, Pageable.
 
 *<sub>[Wróć do Spisu Treści](#spis-treści)</sub>*
 
@@ -120,22 +101,6 @@ Test przez Postmana nie powiódł się: problem z konwersją wartości typu 'jav
 
 ---
 
-## BE-REFINE-OPTIMALIZATION-25.05.2025: User management
-
-Problem n+1.
-
-*<sub>[Wróć do Spisu Treści](#spis-treści)</sub>*
-
----
-
-## DEV-FEATURE-26.05.2025: Profile separation
-
-Stwórz osobne profile dla środowisk produkcyjnego (`prod`) i deweloperskiego (`dev`).
-
-*<sub>[Wróć do Spisu Treści](#spis-treści)</sub>*
-
----
-
 ## BE-REFINE-SECURITY-28-05-2025: Database credentials
 
 Dane dostępowe do bazy danych przenieść z pliku `application.properties` do **zmiennych środowiskowych**. Dzięki temu:
@@ -147,14 +112,34 @@ Dane dostępowe do bazy danych przenieść z pliku `application.properties` do *
 
 Nie można dodać produktu z polskimi znakami diakrytycznymi.
 
-
 *<sub>[Wróć do Spisu Treści](#spis-treści)</sub>*
+
+--- 
+
 ## FE/BE-FEATURE-11-06-2025: Product history
 
 Dodać logowanie historii zmian w liście produktów: 
 kto coś zmienił 
 kiedy - data i czas
 szczególy zmian - nazwa produktu, nowa nazwa produktu itp. 
+
+
+*<sub>[Wróć do Spisu Treści](#spis-treści)</sub>*
+
+---
+## FE-REFINE-26-07-2025: Exception message
+
+treść exceptionów pojawia się w złym miejscu 
+bo przesuwa tabelę z rekordami wynikowymi w dół. 
+Trzeba Yyy zrobić to w inny sposób aby niezależnie od długości zwrócone wartości błędu nie powodowało to rozjeżdżania się formularza pomysł mam taki żeby użyć modela który będzie tak naprawdę niezależny nowym oknem. 
+
+
+*<sub>[Wróć do Spisu Treści](#spis-treści)</sub>*
+
+---
+## FE-27-07-2025: UPDATE EXISTING PRODUCT
+
+Jeśli produkt istnieje ( nazwa i data przydatności ) to backend wyrzuca konflikt. Przerobić frontend aby w takiej sytuacji pytał czy zaktualizować ilość produktów . Po to aby uprościć procedurę aktualizacji ilości istniejącego produktu.
 
 
 *<sub>[Wróć do Spisu Treści](#spis-treści)</sub>*
