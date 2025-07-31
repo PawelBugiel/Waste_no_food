@@ -1,5 +1,6 @@
 package com.pawelbugiel.wastenofood.controllers;
 
+import com.pawelbugiel.wastenofood.dtos.AddQuantityRequest;
 import com.pawelbugiel.wastenofood.dtos.ProductRequest;
 import com.pawelbugiel.wastenofood.dtos.ProductResponse;
 import com.pawelbugiel.wastenofood.services.ProductService;
@@ -98,6 +99,18 @@ public class ProductController {
 
         return ResponseEntity
                 .ok(updatedProductResponse);
+    }
+
+    @PatchMapping("/{id}/quantity")
+    public ResponseEntity<ProductResponse> addQuantityToProduct(
+            @PathVariable UUID id,
+            @RequestBody @Valid AddQuantityRequest request) {
+
+        ProductResponse updatedProduct = productService
+                .addQuantityToProduct(id, request.quantityToAdd());
+
+        return ResponseEntity
+                .ok(updatedProduct);
     }
 
     @DeleteMapping("/{id}")

@@ -102,6 +102,21 @@ public class ProductServiceImpl implements ProductService {
         return productMapper.toProductResponse(savedProduct);
     }
 
+    @Override
+    @Transactional
+    public ProductResponse addQuantityToProduct(UUID id, Integer quantity) {
+
+        Product foundProduct = findProductByIdOrThrow(id);
+
+        int newQuantity = foundProduct.getQuantity() + quantity;
+        checkIfProductQuantityExceedsMaxQuantity(newQuantity);
+
+        foundProduct.setQuantity(newQuantity);
+        Product savedProduct = productRepository.save(foundProduct);
+
+        return productMapper.toProductResponse(savedProduct);
+    }
+
     //************** DELETE *************
 
     @Override
@@ -122,9 +137,10 @@ public class ProductServiceImpl implements ProductService {
                 .findById(id)
                 .orElseThrow(() -> new ProductNotFoundException(id));
     }
+
     private static void checkIfProductQuantityExceedsMaxQuantity(int productQuantity) {
         if (productQuantity > MAX_PRODUCT_QUANTITY) {
-                        throw new ProductQuantityException("" + productQuantity);
+            throw new ProductQuantityException("" + productQuantity);
         }
     }
 }

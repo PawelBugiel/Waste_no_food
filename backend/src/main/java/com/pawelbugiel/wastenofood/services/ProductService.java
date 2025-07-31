@@ -28,6 +28,8 @@ public interface ProductService {
 
     ProductResponse updateProduct(UUID id, ProductRequest  productRequest);
 
+    ProductResponse addQuantityToProduct(UUID id, Integer quantityToAdd);
+
 //************** DELETE *************
 
     ProductResponse deleteProductById(UUID id);

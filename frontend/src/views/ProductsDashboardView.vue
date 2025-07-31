@@ -107,7 +107,7 @@
         </td>
         <td>{{ product.name }}</td>
         <td>{{ product.quantity }}</td>
-        <td>{{ product.expiryDate }}</td>
+        <td>{{ formatDate(product.expiryDate) }}</td>
         <td>
           <span v-if="product.daysToExpire > 1">{{ product.daysToExpire }} days</span>
           <span v-else-if="product.daysToExpire === 1">1 day</span>
@@ -127,6 +127,7 @@
       </button>
     </div>
     <div v-if="error" class="alert alert-danger">{{ error }}</div>
+
     <div class="modal fade modal-custom" id="deleteModal" tabindex="-1" aria-labelledby="deleteModalLabel" aria-hidden="true">
       <div class="modal-dialog modal-dialog-centered modal-sm">
         <div class="modal-content">
@@ -147,6 +148,28 @@
         </div>
       </div>
     </div>
+
+    <div class="modal fade modal-custom" id="updateQuantityModal" tabindex="-1" aria-hidden="true">
+      <div class="modal-dialog modal-dialog-centered modal-sm">
+        <div class="modal-content">
+          <div class="modal-header">
+            <h5 class="modal-title">Confirm Quantity Update</h5>
+            <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+          </div>
+          <div class="modal-body">
+            Product **{{ productToUpdateQuantity?.name }}** already exists.
+            <div class="my-2">
+              Do you want to add **{{ quantityToAdd }}** to the current stock?
+            </div>
+          </div>
+          <div class="modal-footer">
+            <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">No</button>
+            <button type="button" class="btn btn-custom-edit-update" @click="confirmAddQuantity">Yes, add quantity</button>
+          </div>
+        </div>
+      </div>
+    </div>
+
   </div>
 </template>
 
@@ -169,6 +192,11 @@ const deleteModal = ref(null);
 const searchQuery = ref('');
 const selectedProduct = ref(null);
 const selectedProductId = ref(null);
+
+const productToUpdateQuantity = ref(null);
+const quantityToAdd = ref(null);
+const updateQuantityModal = ref(null);
+
 
 // --- Stan paginacji i sortowania ---
 const currentPage = ref(0);
@@ -212,6 +240,7 @@ watch(searchQuery, (newValue, oldValue) => {
 
 // --- Metody ---
 const fetchProducts = async () => {
+  error.value = null;
   try {
     const params = {
       page: currentPage.value,
@@ -227,7 +256,6 @@ const fetchProducts = async () => {
     });
     products.value = response.data.content;
     totalPages.value = response.data.totalPages;
-    error.value = null;
     if (!isEditMode.value) {
       selectedProduct.value = null;
       selectedProductId.value = null;
@@ -243,32 +271,73 @@ const fetchProducts = async () => {
   }
 };
 
-// ProductsDashboardView.vue
-
 const addProduct = async () => {
   addProductError.value = null;
   try {
-    await axios.post('/products', newProduct.value, {headers: {Authorization: `Bearer ${authStore.token}`}});
-    newProduct.value = {name: '', quantity: null, expiryDate: ''};
+    await axios.post('/products', newProduct.value, { headers: { Authorization: `Bearer ${authStore.token}` } });
+    newProduct.value = { name: '', quantity: null, expiryDate: '' };
     currentPage.value = 0;
     await fetchProducts();
   } catch (err) {
-    if (err.response && err.response.data) {
-      const errorData = err.response.data;
+    if (err.response && err.response.status === 409) {
+      try {
+        const existingProductResponse = await axios.get('/products/search', {
+          params: { partialName: newProduct.value.name, size: 100 }, // Pobierz potencjalne duplikaty
+          headers: { Authorization: `Bearer ${authStore.token}` }
+        });
 
-      if (errorData.validationErrors) {
-        const messages = Object.values(errorData.validationErrors).join('. ');
-        addProductError.value = messages;
+        const existingProduct = existingProductResponse.data.content.find(p => p.name === newProduct.value.name && p.expiryDate === newProduct.value.expiryDate);
+
+        if (existingProduct) {
+          productToUpdateQuantity.value = existingProduct;
+          quantityToAdd.value = newProduct.value.quantity;
+          updateQuantityModal.value.show();
+        } else {
+          addProductError.value = 'A conflict occurred.';
+        }
+      } catch (searchErr) {
+        addProductError.value = 'A conflict occurred';
       }
-      else {
-        addProductError.value = errorData.exceptionMessage || 'Wystąpił nieznany błąd.';
+    } else {
+      // Inne błędy (np. walidacji) obsługujemy standardowo
+      if (err.response && err.response.data) {
+        const errorData = err.response.data;
+        if (errorData.validationErrors) {
+          const messages = Object.values(errorData.validationErrors).join('. ');
+          addProductError.value = messages;
+        } else {
+          addProductError.value = errorData.exceptionMessage || 'An unexpected error occurred.';
+        }
+      } else {
+        addProductError.value = 'Could not connect to the server.';
       }
-    }
-    else {
-      addProductError.value = 'Błąd komunikacji z serwerem.';
     }
   }
 };
+
+
+// NOWOŚĆ: Metoda wywoływana po potwierdzeniu w modalu
+const confirmAddQuantity = async () => {
+  updateQuantityModal.value.hide();
+  addProductError.value = null;
+
+  try {
+    const requestBody = { quantityToAdd: quantityToAdd.value };
+    await axios.patch(`/products/${productToUpdateQuantity.value.id}/quantity`, requestBody, {
+      headers: { Authorization: `Bearer ${authStore.token}` }
+    });
+    // Po sukcesie czyścimy formularz i odświeżamy listę
+    newProduct.value = { name: '', quantity: null, expiryDate: '' };
+    await fetchProducts();
+  } catch (err) {
+    if (err.response && err.response.data) {
+      addProductError.value = err.response.data.exceptionMessage || 'An unexpected error occurred while updating quantity.';
+    } else {
+      addProductError.value = 'Could not connect to the server.';
+    }
+  }
+};
+
 
 const updateProduct = async () => {
   addProductError.value = null;
@@ -278,7 +347,6 @@ const updateProduct = async () => {
     isEditMode.value = false;
     currentProduct.value = {id: '', name: '', quantity: null, expiryDate: ''};
     newProduct.value = {name: '', quantity: null, expiryDate: ''};
-    addProductError.value = null;
     await fetchProducts();
   } catch (err) {
     if (err.response && err.response.data) {
@@ -321,6 +389,7 @@ const showDeleteModal = (product) => {
 };
 
 const deleteProduct = async () => {
+  error.value = null;
   try {
     await axios.delete(`/products/${productToDelete.value.id}`, {headers: {Authorization: `Bearer ${authStore.token}`}});
     deleteModal.value.hide();
@@ -380,11 +449,23 @@ const prevPage = () => {
   }
 };
 
+const formatDate = (dateString) => {
+  if (!dateString) return '';
+  const [year, month, day] = dateString.split('-');
+  return `${day}.${month}.${year}`;
+};
+
 onMounted(() => {
   fetchProducts();
-  const modalElement = document.getElementById('deleteModal');
-  if (modalElement) {
-    deleteModal.value = new Modal(modalElement);
+
+  const deleteModalElement = document.getElementById('deleteModal');
+  if (deleteModalElement) {
+    deleteModal.value = new Modal(deleteModalElement);
+  }
+
+  const updateQuantityModalElement = document.getElementById('updateQuantityModal');
+  if (updateQuantityModalElement) {
+    updateQuantityModal.value = new Modal(updateQuantityModalElement);
   }
 });
 </script>
