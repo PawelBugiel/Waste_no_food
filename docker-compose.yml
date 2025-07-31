@@ -20,7 +20,7 @@ services:
       - app-network
 
   backend:
-    image: ghcr.io/pawelbugiel/waste_no_food/wnf-backend:0.0.2-SNAPSHOT
+    image: ghcr.io/pawelbugiel/waste_no_food/wnf-backend:${BACKEND_VERSION}
     container_name: wnf-backend-container
     restart: always
     environment:
@@ -36,7 +36,7 @@ services:
       - app-network
 
   frontend:
-    image: ghcr.io/pawelbugiel/waste_no_food/wnf-frontend:0.0.2-SNAPSHOT
+    image: ghcr.io/pawelbugiel/waste_no_food/wnf-frontend:${FRONTEND_VERSION}
     container_name: wnf-frontend-container
     ports:
       - "8080:80"
