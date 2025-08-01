@@ -29,12 +29,13 @@ public class ProductRequest {
     @Pattern(regexp = "^[a-zA-Z0-9]{3}.*$",
             message = "Product name must start with at least 3 alphanumeric characters")
     @Size(min = 3, max = MAX_NAME_LENGTH,
-            message = "The name must be between at least 3 and max " + MAX_NAME_LENGTH + " characters long")
+            message = "Product name length must be between 3 and " + MAX_NAME_LENGTH + " characters long")
     private final String name;
 
     @Min(value = 1, message = "Quantity must be at least 1")
     @Max(value = MAX_PRODUCT_QUANTITY,
             message = "Quantity must not exceed " + MAX_PRODUCT_QUANTITY)
+
     private final Integer quantity;
 
     @NotNull(message = "Expiry date cannot be null")

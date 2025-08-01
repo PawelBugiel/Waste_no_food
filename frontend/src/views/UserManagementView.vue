@@ -31,7 +31,6 @@
           </select>
         </div>
       </div>
-      <p v-if="registerError" class="text-danger mt-2">{{ registerError }}</p>
     </form>
 
     <div class="row g-3 mb-3">
@@ -54,11 +53,6 @@
           </button>
         </div>
       </div>
-    </div>
-
-
-    <div v-if="error" class="alert alert-danger">
-      {{ error }}
     </div>
 
     <table class="table table-striped" v-if="users.length">
@@ -91,7 +85,7 @@
       </tr>
       </tbody>
     </table>
-    <p v-if="!users.length && !error" class="text-center">No users found.</p>
+    <p v-if="!users.length" class="text-center">No users found.</p>
 
     <div class="d-flex justify-content-between align-items-center mb-4" v-if="totalPages > 0">
       <button @click="prevPage" :disabled="currentPage === 0" class="btn btn-info btn-compact btn-previous-page">Previous</button>
@@ -127,12 +121,12 @@ import { useRouter } from 'vue-router';
 import axios from '@/axios.js';
 import { useAuthStore } from '@/stores/authStore';
 import { Modal } from 'bootstrap';
+import { useToast } from "vue-toastification";
+import ValidationErrorToast from "@/components/ValidationErrorToast.vue";
 
 // --- Stan komponentu ---
 const users = ref([]);
 const newUser = ref({ email: '', password: '', role: 'ENDUSER' });
-const error = ref('');
-const registerError = ref('');
 const selectedUser = ref(null);
 const selectedUserId = ref(null);
 const userToDelete = ref(null);
@@ -150,6 +144,7 @@ const searchQuery = ref('');
 
 const authStore = useAuthStore();
 const router = useRouter();
+const toast = useToast();
 
 // --- Obserwatory ---
 watch([currentPage, sortBy, sortDirection], () => fetchUsers());
@@ -178,31 +173,23 @@ const fetchUsers = async () => {
       size: pageSize.value,
       sort: `${sortBy.value},${sortDirection.value}`
     };
-
     if (searchQuery.value) {
       endpoint = '/auth/search';
       params.email = searchQuery.value;
     }
-
     const response = await axios.get(endpoint, {
       params,
       headers: { Authorization: `Bearer ${authStore.token}` }
     });
     users.value = response.data.content;
     totalPages.value = response.data.totalPages;
-    error.value = '';
-
-    // Nie czyść zaznaczenia, jeśli jesteśmy w trakcie wyszukiwania
     if (!searchQuery.value) {
       selectedUser.value = null;
       selectedUserId.value = null;
     }
   } catch (err) {
-    if (err.response && err.response.data) {
-      error.value = err.response.data.exceptionMessage || 'An unexpected error occurred while fetching users.';
-    } else {
-      error.value = 'Could not connect to the server.';
-    }
+    const errorMessage = err.response?.data?.exceptionMessage || 'An unexpected error occurred while fetching users.';
+    toast.error(errorMessage, { timeout: 7000 });
     users.value = [];
     totalPages.value = 0;
   }
@@ -215,24 +202,26 @@ const registerUser = async () => {
     await axios.post(endpoint, {
       email: newUser.value.email,
       password: newUser.value.password,
-      role: newUser.value.role
     }, { headers: { Authorization: `Bearer ${authStore.token}` } });
-    registerError.value = '';
+
+    toast.success(`User "${newUser.value.email}" registered successfully!`, { timeout: 3000 });
+
     newUser.value = { email: '', password: '', role: 'ENDUSER' };
     currentPage.value = 0;
     await fetchUsers();
   } catch (err) {
     if (err.response && err.response.data) {
       const errorData = err.response.data;
-
       if (errorData.validationErrors) {
-        const messages = Object.values(errorData.validationErrors).join('. ');
-        registerError.value = messages;
+        toast.error({
+          component: ValidationErrorToast,
+          props: { validationErrors: errorData.validationErrors }
+        }, { timeout: 7000 });
       } else {
-        registerError.value = errorData.exceptionMessage || 'An unexpected error occurred during registration.';
+        toast.error(errorData.exceptionMessage || 'An unexpected error occurred during registration.', { timeout: 7000 });
       }
     } else {
-      registerError.value = 'Could not connect to the server.';
+      toast.error('Could not connect to the server.', { timeout: 7000 });
     }
   }
 };
@@ -245,13 +234,14 @@ const showDeleteModal = (user) => {
 };
 
 const confirmDeleteUser = async () => {
-  error.value = '';
   if (!userToDelete.value) return;
-
   try {
+    const userEmail = userToDelete.value.email;
     await axios.delete(`/auth/user/${userToDelete.value.id}`, { headers: { Authorization: `Bearer ${authStore.token}` } });
-    deleteModal.value.hide();
 
+    toast.success(`User "${userEmail}" deleted successfully!`, { timeout: 3000 });
+
+    deleteModal.value.hide();
     userToDelete.value = null;
     selectedUser.value = null;
     selectedUserId.value = null;
@@ -262,11 +252,8 @@ const confirmDeleteUser = async () => {
       await fetchUsers();
     }
   } catch (err) {
-    if (err.response && err.response.data) {
-      error.value = err.response.data.exceptionMessage || 'An unexpected error occurred while deleting the user.';
-    } else {
-      error.value = 'Could not connect to the server.';
-    }
+    const errorMessage = err.response?.data?.exceptionMessage || 'An unexpected error occurred while deleting the user.';
+    toast.error(errorMessage, { timeout: 7000 });
     deleteModal.value.hide();
   }
 };

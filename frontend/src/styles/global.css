@@ -293,3 +293,12 @@ body {
     font-size: 0.8rem;
     box-shadow: none;
 }
+
+.Vue-Toastification__toast.Vue-Toastification__toast--success {
+    background-color: #1A705E;
+    color: #F9EBDA;
+}
+
+.Vue-Toastification__toast.Vue-Toastification__toast--error {
+    background-color: #A98078;
+}

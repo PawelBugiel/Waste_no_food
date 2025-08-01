@@ -48,7 +48,11 @@
           </div>
         </div>
       </div>
-      <p v-if="addProductError" class="text-danger mt-2">{{ addProductError }}</p>
+
+      <div class="error-container">
+        <p v-if="addProductError" class="text-danger mt-2 mb-0" v-html="addProductError"></p>
+      </div>
+
     </form>
 
 
@@ -126,7 +130,6 @@
               class="btn btn-info btn-compact btn-next-page">Next
       </button>
     </div>
-    <div v-if="error" class="alert alert-danger">{{ error }}</div>
 
     <div class="modal fade modal-custom" id="deleteModal" tabindex="-1" aria-labelledby="deleteModalLabel" aria-hidden="true">
       <div class="modal-dialog modal-dialog-centered modal-sm">
@@ -157,9 +160,9 @@
             <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
           </div>
           <div class="modal-body">
-            Product **{{ productToUpdateQuantity?.name }}** already exists.
+            Product <strong>{{ productToUpdateQuantity?.name }}</strong> already exists.
             <div class="my-2">
-              Do you want to add **{{ quantityToAdd }}** to the current stock?
+              Do you want to add <strong>{{ quantityToAdd }}</strong> to the current stock?
             </div>
           </div>
           <div class="modal-footer">
@@ -179,12 +182,13 @@ import axios from '../axios';
 import {Modal} from 'bootstrap';
 import {useAuthStore} from '@/stores/authStore';
 import {useRouter} from 'vue-router';
+import { useToast } from "vue-toastification";
+
+import ValidationErrorToast from "@/components/ValidationErrorToast.vue";
 
 // --- Stan komponentu ---
 const products = ref([]);
-const error = ref(null);
 const newProduct = ref({name: '', quantity: null, expiryDate: ''});
-const addProductError = ref(null);
 const isEditMode = ref(false);
 const currentProduct = ref({id: '', name: '', quantity: null, expiryDate: ''});
 const productToDelete = ref(null);
@@ -192,11 +196,9 @@ const deleteModal = ref(null);
 const searchQuery = ref('');
 const selectedProduct = ref(null);
 const selectedProductId = ref(null);
-
 const productToUpdateQuantity = ref(null);
 const quantityToAdd = ref(null);
 const updateQuantityModal = ref(null);
-
 
 // --- Stan paginacji i sortowania ---
 const currentPage = ref(0);
@@ -207,6 +209,7 @@ const sortDirection = ref('asc');
 
 const authStore = useAuthStore();
 const router = useRouter();
+const toast = useToast();
 
 // --- Właściwości obliczeniowe ---
 const productsWithDaysLeft = computed(() => {
@@ -239,8 +242,13 @@ watch(searchQuery, (newValue, oldValue) => {
 });
 
 // --- Metody ---
+const formatDate = (dateString) => {
+  if (!dateString) return '';
+  const [year, month, day] = dateString.split('-');
+  return `${day}.${month}.${year}`;
+};
+
 const fetchProducts = async () => {
-  error.value = null;
   try {
     const params = {
       page: currentPage.value,
@@ -261,20 +269,19 @@ const fetchProducts = async () => {
       selectedProductId.value = null;
     }
   } catch (err) {
-    if (err.response && err.response.data) {
-      error.value = err.response.data.exceptionMessage || 'An unexpected error occurred while fetching products.';
-    } else {
-      error.value = 'Could not connect to the server.';
-    }
+    const errorMessage = err.response?.data?.exceptionMessage || 'Failed to load products. Check if the server is running.';
+    toast.error(errorMessage, { timeout: 7000 });
     totalPages.value = 0;
     products.value = [];
   }
 };
 
 const addProduct = async () => {
-  addProductError.value = null;
   try {
     await axios.post('/products', newProduct.value, { headers: { Authorization: `Bearer ${authStore.token}` } });
+
+    toast.success(`Product "${newProduct.value.name}" added successfully!`, { timeout: 3000 });
+
     newProduct.value = { name: '', quantity: null, expiryDate: '' };
     currentPage.value = 0;
     await fetchProducts();
@@ -282,10 +289,9 @@ const addProduct = async () => {
     if (err.response && err.response.status === 409) {
       try {
         const existingProductResponse = await axios.get('/products/search', {
-          params: { partialName: newProduct.value.name, size: 100 }, // Pobierz potencjalne duplikaty
+          params: { partialName: newProduct.value.name, size: 100 },
           headers: { Authorization: `Bearer ${authStore.token}` }
         });
-
         const existingProduct = existingProductResponse.data.content.find(p => p.name === newProduct.value.name && p.expiryDate === newProduct.value.expiryDate);
 
         if (existingProduct) {
@@ -293,57 +299,50 @@ const addProduct = async () => {
           quantityToAdd.value = newProduct.value.quantity;
           updateQuantityModal.value.show();
         } else {
-          addProductError.value = 'A conflict occurred.';
+          toast.error('A conflict occurred, but the existing product could not be found.', { timeout: 7000 });
         }
       } catch (searchErr) {
-        addProductError.value = 'A conflict occurred';
+        toast.error('A conflict occurred, but failed to search for the existing product.', { timeout: 7000 });
+      }
+    } else if (err.response && err.response.data) {
+      const errorData = err.response.data;
+      if (errorData.validationErrors) {
+        toast.error({
+          component: ValidationErrorToast,
+          props: { validationErrors: errorData.validationErrors }
+        }, { timeout: 7000 });
+      } else {
+        toast.error(errorData.exceptionMessage || 'An unexpected error occurred.', { timeout: 7000 });
       }
     } else {
-      // Inne błędy (np. walidacji) obsługujemy standardowo
-      if (err.response && err.response.data) {
-        const errorData = err.response.data;
-        if (errorData.validationErrors) {
-          const messages = Object.values(errorData.validationErrors).join('. ');
-          addProductError.value = messages;
-        } else {
-          addProductError.value = errorData.exceptionMessage || 'An unexpected error occurred.';
-        }
-      } else {
-        addProductError.value = 'Could not connect to the server.';
-      }
+      toast.error('Could not connect to the server.', { timeout: 7000 });
     }
   }
 };
 
-
-// NOWOŚĆ: Metoda wywoływana po potwierdzeniu w modalu
 const confirmAddQuantity = async () => {
   updateQuantityModal.value.hide();
-  addProductError.value = null;
-
   try {
     const requestBody = { quantityToAdd: quantityToAdd.value };
     await axios.patch(`/products/${productToUpdateQuantity.value.id}/quantity`, requestBody, {
       headers: { Authorization: `Bearer ${authStore.token}` }
     });
-    // Po sukcesie czyścimy formularz i odświeżamy listę
+    toast.success(`Quantity for "${productToUpdateQuantity.value.name}" updated successfully!`);
     newProduct.value = { name: '', quantity: null, expiryDate: '' };
     await fetchProducts();
   } catch (err) {
-    if (err.response && err.response.data) {
-      addProductError.value = err.response.data.exceptionMessage || 'An unexpected error occurred while updating quantity.';
-    } else {
-      addProductError.value = 'Could not connect to the server.';
-    }
+    const errorMessage = err.response?.data?.exceptionMessage || 'An unexpected error occurred while updating quantity.';
+    toast.error(errorMessage);
   }
 };
 
-
 const updateProduct = async () => {
-  addProductError.value = null;
   try {
     const productIdToUpdate = currentProduct.value.id;
     await axios.put(`/products/${productIdToUpdate}`, newProduct.value, {headers: {Authorization: `Bearer ${authStore.token}`}});
+
+    toast.success(`Product "${newProduct.value.name}" updated successfully!`, { timeout: 3000 });
+
     isEditMode.value = false;
     currentProduct.value = {id: '', name: '', quantity: null, expiryDate: ''};
     newProduct.value = {name: '', quantity: null, expiryDate: ''};
@@ -352,15 +351,15 @@ const updateProduct = async () => {
     if (err.response && err.response.data) {
       const errorData = err.response.data;
       if (errorData.validationErrors) {
-        const messages = Object.values(errorData.validationErrors).join('. ');
-        addProductError.value = messages;
+        toast.error({
+          component: ValidationErrorToast,
+          props: { validationErrors: errorData.validationErrors }
+        }, { timeout: 7000 });
+      } else {
+        toast.error(errorData.exceptionMessage || 'An unexpected error occurred while updating the product.', { timeout: 7000 });
       }
-      else {
-        addProductError.value = errorData.exceptionMessage || 'An unexpected error occurred while updating the product.';
-      }
-    }
-    else {
-      addProductError.value = 'Could not connect to the server.';
+    } else {
+      toast.error('Could not connect to the server.', { timeout: 7000 });
     }
   }
 };
@@ -389,9 +388,12 @@ const showDeleteModal = (product) => {
 };
 
 const deleteProduct = async () => {
-  error.value = null;
   try {
+    const productName = productToDelete.value.name;
     await axios.delete(`/products/${productToDelete.value.id}`, {headers: {Authorization: `Bearer ${authStore.token}`}});
+
+    toast.success(`Product "${productName}" deleted successfully!`, { timeout: 3000 });
+
     deleteModal.value.hide();
     productToDelete.value = null;
     selectedProduct.value = null;
@@ -402,11 +404,8 @@ const deleteProduct = async () => {
       await fetchProducts();
     }
   } catch (err) {
-    if (err.response && err.response.data) {
-      error.value = err.response.data.exceptionMessage || 'An unexpected error occurred while deleting the product.';
-    } else {
-      error.value = 'Could not connect to the server.';
-    }
+    const errorMessage = err.response?.data?.exceptionMessage || 'An unexpected error occurred while deleting the product.';
+    toast.error(errorMessage, { timeout: 7000 });
   }
 };
 
@@ -447,12 +446,6 @@ const prevPage = () => {
   if (currentPage.value > 0) {
     currentPage.value--;
   }
-};
-
-const formatDate = (dateString) => {
-  if (!dateString) return '';
-  const [year, month, day] = dateString.split('-');
-  return `${day}.${month}.${year}`;
 };
 
 onMounted(() => {
