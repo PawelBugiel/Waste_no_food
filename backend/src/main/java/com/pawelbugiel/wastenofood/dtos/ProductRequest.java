@@ -35,7 +35,7 @@ public class ProductRequest {
     @Min(value = 1, message = "Quantity must be at least 1")
     @Max(value = MAX_PRODUCT_QUANTITY,
             message = "Quantity must not exceed " + MAX_PRODUCT_QUANTITY)
-
+    @NotNull(message = "Quantity is required and must be a number")
     private final Integer quantity;
 
     @NotNull(message = "Expiry date cannot be null")

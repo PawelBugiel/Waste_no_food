@@ -78,7 +78,7 @@
           style="cursor: pointer;">
         <td>{{ (currentPage * pageSize) + index + 1 }}</td>
         <td>
-          <input type="radio" :value="user.id" v-model="selectedUserId" @click.stop>
+          <input type="radio" :value="user.id" v-model="selectedUserId">
         </td>
         <td>{{ user.email }}</td>
         <td>{{ user.roles && user.roles.length > 0 ? user.roles[0].name.replace("ROLE_", "") : "NO_ROLE" }}</td>

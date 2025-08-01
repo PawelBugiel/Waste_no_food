@@ -106,7 +106,7 @@
           :style="{ cursor: isEditMode ? 'not-allowed' : 'pointer' }">
 
         <td>{{ (currentPage * pageSize) + index + 1 }}</td>
-        <td><input type="radio" :value="product.id" v-model="selectedProductId" @click.stop="selectProduct(product)"
+        <td><input type="radio" :value="product.id" v-model="selectedProductId"
                    :disabled="isEditMode">
         </td>
         <td>{{ product.name }}</td>
