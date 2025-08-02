@@ -7,7 +7,6 @@ import com.pawelbugiel.wastenofood.exceptions.ProductQuantityException;
 import com.pawelbugiel.wastenofood.mappers.ProductMapper;
 import com.pawelbugiel.wastenofood.models.Product;
 import com.pawelbugiel.wastenofood.repositories.ProductRepository;
-import com.pawelbugiel.wastenofood.validators.ObjectValidator;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.data.domain.Page;
@@ -26,12 +25,10 @@ public class ProductServiceImpl implements ProductService {
 
     private final ProductRepository productRepository;
     private final ProductMapper productMapper;
-    private final ObjectValidator<ProductRequest> objectValidator;
 
-    public ProductServiceImpl(ProductRepository productRepository, ProductMapper productMapper, ObjectValidator<ProductRequest> objectValidator) {
+    public ProductServiceImpl(ProductRepository productRepository, ProductMapper productMapper) {
         this.productRepository = productRepository;
         this.productMapper = productMapper;
-        this.objectValidator = objectValidator;
     }
 
 //************** CREATE *************
@@ -39,8 +36,6 @@ public class ProductServiceImpl implements ProductService {
     @Override
     @Transactional
     public ProductResponse createNewProduct(ProductRequest productRequest) {
-
-        objectValidator.validate(productRequest);
 
         Product passedProduct = productMapper.toProduct(productRequest);
         Product savedProduct = productRepository.save(passedProduct);
@@ -90,8 +85,6 @@ public class ProductServiceImpl implements ProductService {
     @Override
     @Transactional
     public ProductResponse updateProduct(UUID id, ProductRequest productRequest) {
-
-        objectValidator.validate(productRequest);
 
         checkIfProductQuantityExceedsMaxQuantity(productRequest.getQuantity());
 

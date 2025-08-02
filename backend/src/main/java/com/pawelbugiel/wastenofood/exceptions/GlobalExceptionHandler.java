@@ -3,6 +3,7 @@ package com.pawelbugiel.wastenofood.exceptions;
 import jakarta.validation.ConstraintViolationException;
 import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.http.HttpStatus;
+import org.springframework.http.converter.HttpMessageNotReadableException;
 import org.springframework.validation.FieldError;
 import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.annotation.ExceptionHandler;
@@ -77,6 +78,14 @@ public class GlobalExceptionHandler {
     @ResponseStatus(HttpStatus.BAD_REQUEST)
     public ApiError handleProductQuantity(ProductQuantityException ex) {
         String message = "Product quantity exceeded max quantity.";
+
+        return createApiError(HttpStatus.BAD_REQUEST, message, null);
+    }
+
+    @ExceptionHandler(HttpMessageNotReadableException.class)
+    @ResponseStatus(HttpStatus.BAD_REQUEST)
+    public ApiError handleHttpMessageNotReadable(HttpMessageNotReadableException ex) {
+        String message = "Invalid request body format.";
 
         return createApiError(HttpStatus.BAD_REQUEST, message, null);
     }
