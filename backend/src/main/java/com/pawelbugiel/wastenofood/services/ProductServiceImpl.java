@@ -16,7 +16,8 @@ import org.springframework.transaction.annotation.Transactional;
 
 import java.util.UUID;
 
-import static com.pawelbugiel.wastenofood.dtos.ProductRequest.MAX_PRODUCT_QUANTITY;
+import static com.pawelbugiel.wastenofood.configs.ProductValidationConfig.MAX_PRODUCT_QUANTITY;
+
 
 @Service
 public class ProductServiceImpl implements ProductService {
@@ -86,9 +87,11 @@ public class ProductServiceImpl implements ProductService {
     @Transactional
     public ProductResponse updateProduct(UUID id, ProductRequest productRequest) {
 
-        checkIfProductQuantityExceedsMaxQuantity(productRequest.getQuantity());
+        checkIfProductQuantityExceedsMaxQuantity(productRequest.quantity());
 
         Product productToUpdate = findProductByIdOrThrow(id);
+
+        productToUpdate.setQuantity(productRequest.quantity());
         productMapper.updateProductFromRequest(productRequest, productToUpdate);
         Product savedProduct = productRepository.save(productToUpdate);
 
@@ -133,7 +136,7 @@ public class ProductServiceImpl implements ProductService {
 
     private static void checkIfProductQuantityExceedsMaxQuantity(int productQuantity) {
         if (productQuantity > MAX_PRODUCT_QUANTITY) {
-            throw new ProductQuantityException("" + productQuantity);
+            throw new ProductQuantityException(String.valueOf(productQuantity));
         }
     }
 }

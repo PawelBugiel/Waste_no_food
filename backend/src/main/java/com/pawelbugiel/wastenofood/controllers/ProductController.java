@@ -13,16 +13,15 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.util.UriComponentsBuilder;
-
 import java.util.UUID;
+
+import static com.pawelbugiel.wastenofood.configs.ProductValidationConfig.PRODUCT_NAME_SEARCH_VALIDATION_REGEX;
 
 //@SuppressWarnings("unused")
 @RestController
 @RequestMapping("api/products")
 @Validated
 public class ProductController {
-
-    private static final String PARTIAL_NAME_REGEX = "^[a-zA-Z0-9].*";
 
     private final ProductService productService;
 
@@ -69,7 +68,7 @@ public class ProductController {
 
     @GetMapping("/search")
     public ResponseEntity<Page<ProductResponse>> findProductsByPartialName(
-            @RequestParam @Pattern(regexp = PARTIAL_NAME_REGEX) String partialName,
+            @RequestParam @Pattern(regexp = PRODUCT_NAME_SEARCH_VALIDATION_REGEX) String partialName,
             Pageable pageable) {
 
         Page<ProductResponse> productResponses = productService
