@@ -154,3 +154,15 @@
 * Szczegółowy opis problemu lub nowej funkcjonalności.
 
 *<sub>[Wróć do Spisu Treści](#spis-treści)</sub>*
+
+
+TODO width BE
+1. feature- logować kto wykonał daną akcję na produktach, później na użytkownikach
+2. zapisywać usunięte przeterminowane produkty
+3. zezwolić na edycję produktu przeterminowanego ?
+4. Komentarze JavaDoc i inne.
+5. zabezpieczenie przed usunięciem wszystkich użytkowników z rolą administrator ?
+
+FE
+1. feature - Dodać informację kto jest zalogowany ?
+2. fix - dodanie produktu o takiej Samej nazwie i takiej samej dacie przydatności ale inne wielkości liter powoduje konflikt
